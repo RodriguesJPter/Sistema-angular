@@ -1,0 +1,100 @@
+<div *ngIf="pokemonEditado && !errorMessage; else errorTemplate">
+  <div class="pokemon-card-container">
+
+    <mat-card [class]="'pokemon-card ' + (pokemonEditado.types && pokemonEditado.types[0] && pokemonEditado.types[0].type ? pokemonEditado.types[0].type.name : 'normal')">
+
+      <div class="card-header">
+        <h1 class="pokemon-name" *ngIf="!modoEdicao">{{ pokemonEditado.name | titlecase }}</h1>
+
+        <mat-form-field *ngIf="modoEdicao" class="edit-field full-width" [@fadeInputs]>
+          <input matInput type="text" [(ngModel)]="pokemonEditado.name" required>
+        </mat-form-field>
+
+        <span class="pokemon-number">#{{ pokemonEditado.id | number:'3.0-0' }}</span>
+      </div>
+
+      <div class="image-section">
+
+        <img class="main-image" 
+             [src]="pokemonEditado.sprites && pokemonEditado.sprites.other && pokemonEditado.sprites.other['official-artwork'] ? 
+                   pokemonEditado.sprites.other['official-artwork'].front_default : 
+                   'assets/imagens/Erro.PNG'" 
+             [alt]="pokemonEditado.name">
+
+        <img class="shiny-image" 
+             *ngIf="pokemonEditado.sprites && pokemonEditado.sprites.other && pokemonEditado.sprites.other['official-artwork'] && pokemonEditado.sprites.other['official-artwork'].front_shiny"
+             [src]="pokemonEditado.sprites.other['official-artwork'].front_shiny" 
+             [alt]="pokemonEditado.name + ' shiny'">
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="info-section">
+        <div class="info-row">
+          <span class="info-label">Altura</span>
+          <span *ngIf="!modoEdicao" class="info-value">{{ (pokemonEditado.height || 0) / 10 }} m</span>
+          <mat-form-field *ngIf="modoEdicao" class="edit-field" [@fadeInputs]>
+            <input matInput type="number" [(ngModel)]="pokemonEditado.height">
+          </mat-form-field>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Peso</span>
+          <span *ngIf="!modoEdicao" class="info-value">{{ (pokemonEditado.weight || 0) / 10 }} kg</span>
+          <mat-form-field *ngIf="modoEdicao" class="edit-field" [@fadeInputs]>
+            <input matInput type="number" [(ngModel)]="pokemonEditado.weight">
+          </mat-form-field>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Tipos</span>
+          <div class="types-container">
+            <span *ngIf="pokemonEditado.types && pokemonEditado.types.length"
+                  class="tipo-badge {{ pokemonEditado.types[0] && pokemonEditado.types[0].type ? pokemonEditado.types[0].type.name : '' }}">
+              {{ pokemonEditado.types[0] && pokemonEditado.types[0].type ? (pokemonEditado.types[0].type.name | titlecase) : '' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="actions-section">
+        <div class="left-button">
+          <button mat-raised-button color="primary" (click)="voltarParaLista()" class="action-button">
+            Voltar
+          </button>
+        </div>
+
+        <div class="right-buttons">
+          <button *ngIf="!modoEdicao" mat-raised-button color="accent" (click)="entrarModoEdicao()" class="action-button edit-trigger">
+            Editar
+          </button>
+
+          <div *ngIf="modoEdicao" class="edit-actions" [@fadeButtons]>
+            <button mat-raised-button color="primary" (click)="salvarEdicoes()" class="action-button">
+              Salvar
+            </button>
+            <button mat-raised-button color="warn" (click)="cancelarEdicao()" class="action-button">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </mat-card>
+  </div>
+</div>
+
+<ng-template #errorTemplate>
+  <div class="error-container">
+    <img src="assets/imagens/Erro.PNG" alt="Erro" class="error-image">
+    <div class="error-message">
+      <h2>Ocorreu um erro!</h2>
+      <p>{{ errorMessage || 'Não foi possível carregar os dados do Pokémon' }}</p>
+      <button mat-raised-button color="primary" routerLink="/">
+        Voltar à lista
+      </button>
+    </div>
+  </div>
+</ng-template>

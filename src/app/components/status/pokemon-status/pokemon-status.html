@@ -1,0 +1,63 @@
+<div class="status-widget"
+     [style.top.px]="posicao.top"
+     [style.left.px]="posicao.left"
+     @fadeInUp>
+
+  <mat-card class="status-container">
+    <mat-card-header class="status-header" (mousedown)="onMouseDown($event)">
+      <mat-card-title>Status</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content class="slim-content">
+      <div class="status-input">
+        <mat-form-field appearance="outline" class="slim-field">
+            <mat-label>Pokémon</mat-label>
+            <input matInput 
+              [(ngModel)]="nomePesquisa" 
+              (keyup.enter)="buscarPokemon()"
+              (ngModelChange)="limparSeVazio()"
+              placeholder="Ex. Pikachu">
+           <button mat-icon-button matSuffix (mousedown)="prepararBusca()" (click)="buscarPokemon()" [disabled]="!nomePesquisa">
+            <mat-icon>search</mat-icon>
+            </button>
+        </mat-form-field>
+      </div>
+
+      <div class="status-body">
+        <div class="slim-pokemon-display">
+          <img *ngIf="dadosPokemon?.sprites; else placeholder" 
+               [src]="dadosPokemon.sprites.front_default || 'assets/imagens/error.png'" 
+               alt="sprite"
+               class="slim-sprite"
+               (error)="handleImageError($event)">
+          <ng-template #placeholder>
+            <div class="slim-placeholder">?</div>
+          </ng-template>
+        </div>
+
+        <div class="slim-stats">
+          <div class="slim-stat">
+            <span class="stat-label">ATK</span>
+            <mat-progress-bar mode="determinate" [value]="dadosPokemon?.ataque || 0" class="slim-bar"></mat-progress-bar>
+            <span class="stat-value">{{dadosPokemon?.ataque || 0}}</span>
+          </div>
+          
+          <div class="slim-stat">
+            <span class="stat-label">DEF</span>
+            <mat-progress-bar mode="determinate" [value]="dadosPokemon?.defesa || 0" class="slim-bar"></mat-progress-bar>
+            <span class="stat-value">{{dadosPokemon?.defesa || 0}}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions class="slim-actions">
+      <button mat-icon-button (click)="irParaInfo()" [disabled]="!dadosPokemon" matTooltip="Visualizar">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button mat-icon-button (click)="favoritar()" [disabled]="!dadosPokemon" matTooltip="Favoritar">
+        <mat-icon>{{ isFavorito() ? 'favorite' : 'favorite_border' }}</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

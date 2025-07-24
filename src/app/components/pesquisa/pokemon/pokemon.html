@@ -1,0 +1,145 @@
+<div class="pokebola-system">
+  <div class="pokebola-top">
+
+    <div class="widget-btn-container">
+      <button mat-mini-fab color="primary" (click)="toggleWidgetMenu()">
+        <mat-icon>widgets</mat-icon>
+      </button>
+
+      <div class="widget-menu" [@menuAnim]="widgetMenuAberto ? 'visible' : 'hidden'">
+        <button (click)="ativarWidget('pokedex')" [class.ativo]="isWidgetAtivo('pokedex')">Pokedex</button>
+        <button (click)="ativarWidget('status')" [class.ativo]="isWidgetAtivo('status')">Status</button>
+      </div>
+    </div>
+
+    <div class="logo-container">
+      <img [src]="logo" alt="Logo Pokémon" class="pokemon-logo">
+    </div>
+
+    <div class="filtros-container">
+      <mat-form-field class="filtro-field">
+        <mat-label>Nome</mat-label>
+        <input matInput placeholder="Ex. Pikachu" [(ngModel)]="filtroNome">
+      </mat-form-field>
+
+      <mat-form-field class="filtro-field">
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="filtroTipo">
+          <mat-option [value]="''">Todos</mat-option>
+          <mat-option *ngFor="let tipo of tipos" [value]="tipo.name">
+            {{ tipo.name | titlecase }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="filtro-field">
+        <mat-label>Geração</mat-label>
+        <mat-select [(ngModel)]="filtroGeracao">
+          <mat-option [value]="''">Todas</mat-option>
+          <mat-option *ngFor="let geracao of geracoes" [value]="geracao.name">
+            {{ geracao.name | titlecase }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="pokebola-band">
+    <button class="pokebola-button" (click)="filtrar()">
+      <mat-icon class="search-icon">search</mat-icon>
+      <span class="search-text">Pesquisar</span>
+    </button>
+  </div>
+
+  <div class="pokebola-bottom">
+    <div class="tabela-container">
+      <table mat-table [dataSource]="dataSource" class="pokemon-table">
+
+        <ng-container matColumnDef="ordem">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="pokedex">
+          <th mat-header-cell *matHeaderCellDef>Nº Pokedex</th>
+          <td mat-cell *matCellDef="let element">{{ element.pokedex }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *matHeaderCellDef>Nome</th>
+          <td mat-cell *matCellDef="let element">{{ element.nome | titlecase }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="height">
+          <th mat-header-cell *matHeaderCellDef>Altura</th>
+          <td mat-cell *matCellDef="let element">{{ element.height / 10 }} m</td>
+        </ng-container>
+
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="tipo-badge {{element.tipo}}">
+              {{ element.tipo | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="geracao">
+          <th mat-header-cell *matHeaderCellDef>Geração</th>
+          <td mat-cell *matCellDef="let element">{{ element.geracao | titlecase }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="botoes-acoes">
+              <button mat-mini-fab color="primary" (click)="irParaInfo(element.pokedex)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-mini-fab [color]="isFavorito(element) ? 'warn' : 'accent'" (click)="adicionarFavorito(element)">
+                <mat-icon>{{ isFavorito(element) ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <mat-paginator [length]="dataSource.data.length"
+                     [pageSize]="100"
+                     [pageSizeOptions]="[5, 10, 25, 100]"
+                     showFirstLastButtons>
+      </mat-paginator>
+
+    </div>
+  </div>
+</div>
+
+<div class="widget-overlay">
+  <div *ngIf="widgetMenuAberto">
+    <div 
+      class="slot"
+      *ngFor="let slot of [0,1,2,3,4,5]"
+      [style.top.px]="calcularPosicao(slot).top"
+      [style.left.px]="calcularPosicao(slot).left">
+    </div>
+  </div>
+</div>
+
+<ng-container *ngFor="let widget of widgetsAtivos">
+  <app-pokedex-lista
+    *ngIf="widget.tipo === 'pokedex'"
+    [posicao]="widgetPosicao"
+    [atualizarListaTrigger]="atualizarWidget"
+    (remover)="removerFavorito($event)">
+  </app-pokedex-lista>
+
+ <app-pokemon-status
+  *ngIf="widget.tipo === 'status'"
+  [posicao]="widgetPosicao"
+  (atualizarLista)="incrementarAtualizarWidget()">
+</app-pokemon-status>
+</ng-container>
+

@@ -1,0 +1,34 @@
+<div class="pokedex-wrapper"
+     [style.top.px]="posicao.top"
+     [style.left.px]="posicao.left"
+     (mousedown)="onMouseDown($event)"
+     @fadeInUp>
+
+  <div class="pokedex-moldura">
+    
+    <div class="notificacao" *ngIf="mensagemNotificacao" [attr.full]="pokemonsFavoritos.length >= 6 ? 'true' : null">
+      {{ mensagemNotificacao }}
+    </div>
+
+    <div class="pokedex-tela-grid">
+      <div
+        *ngFor="let slot of slots; let i = index"
+        class="slot"
+        [ngClass]="getTipoClasse(i)"
+      >
+        <ng-container *ngIf="slot">
+          <img [src]="slot.sprite" [alt]="slot.name" class="poke-sprite-grid">
+          <button mat-icon-button class="remove-btn" (click)="removerFavorito(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="pokedex-controles">
+      <div class="botao-vermelho"></div>
+      <div class="tela-verde"></div>
+      <div class="direcional"></div>
+    </div>
+  </div>
+</div>
