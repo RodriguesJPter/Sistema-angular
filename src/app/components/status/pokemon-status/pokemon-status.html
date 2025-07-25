@@ -17,8 +17,8 @@
               (keyup.enter)="buscarPokemon()"
               (ngModelChange)="limparSeVazio()"
               placeholder="Ex. Pikachu">
-           <button mat-icon-button matSuffix (mousedown)="prepararBusca()" (click)="buscarPokemon()" [disabled]="!nomePesquisa">
-            <mat-icon>search</mat-icon>
+           <button mat-icon-button matSuffix (click)="buscarPokemon()" [disabled]="!nomePesquisa">
+              <mat-icon>search</mat-icon>
             </button>
         </mat-form-field>
       </div>

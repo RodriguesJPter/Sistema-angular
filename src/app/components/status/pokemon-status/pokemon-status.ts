@@ -51,7 +51,6 @@ export class PokemonStatus implements OnInit {
   private arrastando = false;
   private offset = { x: 0, y: 0 };
 
-  private nomePreparado = '';
 
 constructor(
   private pokemonService: PokemonService,
@@ -68,7 +67,6 @@ constructor(
       this.buscarPokemon();
     }
 
-    // Corrigido com tipagem adequada
     this.pokemonService.edicoes$.subscribe((edicoes: PokemonDetalhado[]) => {
       const pokemonEditado = edicoes.find(p => p.name.toLowerCase() === this.nomePesquisa.toLowerCase());
       if (pokemonEditado) {
@@ -102,29 +100,28 @@ constructor(
     this.arrastando = false;
   }
 
-  buscarPokemon(): void {
-    const nome = (this.nomePreparado || this.nomePesquisa).trim().toLowerCase();
-    if (!nome) {
-      this.dadosPokemon = null;
-      sessionStorage.removeItem('ultimaPesquisaStatus');
-      return;
-    }
-
-    this.pokemonService.getPokemonComEdicoes(nome).subscribe({
-      next: (data) => {
-        if (!data) {
-          this.dadosPokemon = null;
-          return;
-        }
-
-        this.dadosPokemon = this.formatarDadosPokemon(data);
-        sessionStorage.setItem('ultimaPesquisaStatus', data.name);
-      },
-      error: () => this.dadosPokemon = null
-    });
-
-    this.nomePreparado = '';
+ buscarPokemon(): void {
+  const nome = this.nomePesquisa.trim().toLowerCase();
+  if (!nome) {
+    this.dadosPokemon = null;
+    sessionStorage.removeItem('ultimaPesquisaStatus');
+    return;
   }
+
+  this.pokemonService.getPokemonComEdicoes(nome).subscribe({
+    next: (data) => {
+      if (!data) {
+        this.dadosPokemon = null;
+        return;
+      }
+
+      this.dadosPokemon = this.formatarDadosPokemon(data);
+      sessionStorage.setItem('ultimaPesquisaStatus', data.name);
+    },
+    error: () => this.dadosPokemon = null
+  });
+}
+
 
   private formatarDadosPokemon(data: any): any {
     return {
@@ -217,7 +214,6 @@ private carregarDadosApi(data: any): void {
 
   handleImageError(event: any) {
     if (this.dadosPokemon?.sprites) {
-      // Tenta fallbacks alternativos
       event.target.src = this.dadosPokemon.sprites.other?.['official-artwork']?.front_default || 
                         'assets/imagens/error.png';
     } else {
@@ -239,9 +235,4 @@ private carregarDadosApi(data: any): void {
     });
   }
 
-  
-  prepararBusca() {
-    
-    this.nomePreparado = this.nomePesquisa;
-  }
 }
