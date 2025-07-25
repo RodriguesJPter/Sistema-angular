@@ -13,6 +13,7 @@ import { of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-pokemoninfo',
@@ -27,7 +28,8 @@ import { trigger, style, animate, transition } from '@angular/animations';
     MatDividerModule,
     ReactiveFormsModule,
     FormsModule,
-    MatIconModule
+    MatIconModule,
+    MatTooltipModule 
   ],
   templateUrl: './pokemoninfo.html',
   styleUrls: ['./pokemoninfo.scss'],
@@ -54,6 +56,8 @@ import { trigger, style, animate, transition } from '@angular/animations';
 })
 
 export class Pokemoninfo implements OnInit {
+  ativar3D = false;
+  transformStyle = '';
   pokemonOriginal: any = null; // Dados originais da API
   pokemonEditado: any = null;  // Cópia para edição
   modoEdicao = false;
@@ -168,5 +172,34 @@ export class Pokemoninfo implements OnInit {
 
   voltarParaLista(): void {
     this.router.navigate(['/pokemon']);
+  }
+
+ onMouseMove(event: MouseEvent, card: HTMLElement): void {
+    if (!this.ativar3D) {
+      this.transformStyle = '';
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    if (target.closest('.btn-toggle-3d')) {
+      this.transformStyle = '';
+      return;
+    }
+
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    this.transformStyle = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  }
+
+  onMouseLeave(): void {
+    this.transformStyle = '';
   }
 }

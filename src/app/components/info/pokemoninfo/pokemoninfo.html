@@ -1,6 +1,12 @@
 <div *ngIf="pokemonEditado && !errorMessage; else errorTemplate">
-  <div class="pokemon-card-container">
-
+ 
+<div 
+  class="card-3d-wrapper" 
+  [ngStyle]="{'transform': transformStyle}" 
+  (mousemove)="onMouseMove($event, cardElement)" 
+  (mouseleave)="onMouseLeave()"
+  #cardElement>
+   <div class="pokemon-card-container">
     <mat-card [class]="'pokemon-card ' + (pokemonEditado.types && pokemonEditado.types[0] && pokemonEditado.types[0].type ? pokemonEditado.types[0].type.name : 'normal')">
 
       <div class="card-header">
@@ -83,6 +89,15 @@
       </div>
 
     </mat-card>
+</div>
+    <button 
+  class="btn-toggle-3d" 
+    mat-icon-button 
+    (click)="ativar3D = !ativar3D">
+    <mat-icon>{{ ativar3D ? 'pan_tool' : '360' }}</mat-icon>
+  </button>
+
+
   </div>
 </div>
 
@@ -98,3 +113,4 @@
     </div>
   </div>
 </ng-template>
+
