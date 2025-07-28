@@ -81,7 +81,7 @@ export class Pokemoninfo implements OnInit {
   modoEdicao = false;
   isLoading = true;
   errorMessage: string | null = null;
-  mensagemEvolucao: string | null = null;
+  mensagemSemEvolucao: string | null = null;
   isEvolving = false;
 
   private storageKey = 'pokemon_edicoes';
@@ -228,46 +228,37 @@ export class Pokemoninfo implements OnInit {
     }, 5000);
   }
 
-  mostrarProximaEvolucao() {
-    if (!this.pokemonEditado || !this.pokemonEditado.species?.url) return;
+mostrarProximaEvolucao() {
+  if (!this.pokemonEditado || !this.pokemonEditado.species?.url) return;
 
-    this.pokemonService.getEvolutionChainFromSpecies(this.pokemonEditado.species.url).subscribe(chain => {
-      let current = chain.chain;
-      let found = false;
+  this.pokemonService.getEvolutionChainFromSpecies(this.pokemonEditado.species.url).subscribe(chain => {
+    let current = chain.chain;
+    let found = false;
 
-      while (current) {
-        if (current.species.name === this.pokemonEditado.name) {
-          found = true;
-          break;
-        }
-        current = current.evolves_to[0];
+    while (current) {
+      if (current.species.name === this.pokemonEditado.name) {
+        found = true;
+        break;
       }
-
-      if (found && current.evolves_to.length > 0) {
-        const nextEvolutionName = current.evolves_to[0].species.name;
-        this.pokemonService.getDetalhesPokemon(nextEvolutionName).subscribe(nextEvo => {
-          this.pokemonEditado = nextEvo; // Troca instantânea
-        });
-      }
-    });
-  }
-
-private buscarProximaEvolucao(chain: any, nomeAtual: string): string | null {
-  if (!chain) return null;
-
-  if (chain.species.name === nomeAtual) {
-    if (chain.evolves_to.length > 0) {
-      return chain.evolves_to[0].species.name;
+      current = current.evolves_to[0];
     }
-    return null;
-  }
 
-  for (const next of chain.evolves_to) {
-    const resultado = this.buscarProximaEvolucao(next, nomeAtual);
-    if (resultado) return resultado;
-  }
+    if (found && current.evolves_to.length > 0) {
+      const nextEvolutionName = current.evolves_to[0].species.name;
+      this.pokemonService.getDetalhesPokemon(nextEvolutionName).subscribe(nextEvo => {
+        this.pokemonEditado = nextEvo;
+        this.mensagemSemEvolucao = null;
+      });
+    } else {
+      this.mensagemSemEvolucao = "Este Pokémon não possui mais evoluções!";
 
-  return null;
+      // Faz a mensagem sumir após 3 segundos
+      setTimeout(() => {
+        this.mensagemSemEvolucao = null;
+      }, 3000);
+    }
+  });
 }
+
 
 }

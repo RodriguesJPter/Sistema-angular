@@ -1,10 +1,11 @@
 .card-3d-wrapper {
-  transform: none !important;
   max-width: 600px;
   margin: 0 auto;         
   display: flex;
   justify-content: center;
   position: relative;     
+  transition: transform 0.2s ease;
+  will-change: transform;
 }
 
 .btn-toggle-3d {
@@ -240,5 +241,30 @@ mat-divider {
     h2 {
       margin-bottom: 10px;
     }
+  }
+
+}
+
+
+.sem-evolucao-alert {
+  background-color: #DC6250;
+  color: white;
+  padding: 12px 20px;
+  margin: 20px auto;
+  width: fit-content;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 820px;
+  left: 12%;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  .alert-icon {
+    font-size: 24px;
   }
 }

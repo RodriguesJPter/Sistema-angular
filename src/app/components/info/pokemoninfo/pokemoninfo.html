@@ -1,3 +1,8 @@
+<div *ngIf="mensagemSemEvolucao" class="sem-evolucao-alert">
+  <mat-icon class="alert-icon">close</mat-icon>
+  {{ mensagemSemEvolucao }}
+</div>
+
 <div *ngIf="pokemonEditado && !errorMessage; else errorTemplate">
   <div 
     class="card-3d-wrapper" 
@@ -105,9 +110,7 @@
 
 <!-- Removi a mensagem de evolução com animação -->
 
-<div *ngIf="errorMessage" class="error-message-container">
-  {{ errorMessage }}
-</div>
+
 
 <ng-template #errorTemplate>
   <div class="error-container">
