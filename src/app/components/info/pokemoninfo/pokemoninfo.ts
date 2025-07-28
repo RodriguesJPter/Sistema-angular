@@ -12,7 +12,7 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { trigger, style, animate, transition } from '@angular/animations';
+import { trigger, transition, animate, style, state, AnimationTriggerMetadata } from '@angular/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -51,8 +51,26 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       transition(':leave', [
         animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-5px)' }))
       ])
+    ]),
+      trigger('slideInOut', [
+      transition(':enter', [
+        style({ transform: 'translateX(-100%) translateX(-50%)', opacity: 0 }),
+        animate('500ms ease-out', 
+          style({ transform: 'translateX(-50%)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('500ms ease-in', 
+          style({ transform: 'translateX(100%) translateX(-50%)', opacity: 0 }))
+      ])
+    ]),
+    trigger('evolutionFlash', [
+      transition('* => *', [
+        animate('1500ms ease-in-out', 
+          style({ backgroundColor: 'rgba(173, 216, 230, 0.8)' }))
+      ])
     ])
   ]
+  
 })
 
 export class Pokemoninfo implements OnInit {
@@ -63,6 +81,9 @@ export class Pokemoninfo implements OnInit {
   modoEdicao = false;
   isLoading = true;
   errorMessage: string | null = null;
+  mensagemEvolucao: string | null = null;
+  isEvolving = false;
+
   private storageKey = 'pokemon_edicoes';
 
   constructor(
@@ -121,12 +142,6 @@ export class Pokemoninfo implements OnInit {
     this.pokemonOriginal = dados;
     this.pokemonEditado = JSON.parse(JSON.stringify(dados)); 
     this.isLoading = false;
-  }
-
-  private mostrarErro(mensagem: string): void {
-    this.errorMessage = mensagem;
-    this.isLoading = false;
-    console.error(mensagem);
   }
 
   private obterDadosLocais(id: string): any {
@@ -202,4 +217,57 @@ export class Pokemoninfo implements OnInit {
   onMouseLeave(): void {
     this.transformStyle = '';
   }
+
+ private mostrarErro(mensagem: string): void {
+    this.errorMessage = mensagem;
+    this.isLoading = false;
+    console.error(mensagem);
+    
+    setTimeout(() => {
+      this.errorMessage = null;
+    }, 5000);
+  }
+
+  mostrarProximaEvolucao() {
+    if (!this.pokemonEditado || !this.pokemonEditado.species?.url) return;
+
+    this.pokemonService.getEvolutionChainFromSpecies(this.pokemonEditado.species.url).subscribe(chain => {
+      let current = chain.chain;
+      let found = false;
+
+      while (current) {
+        if (current.species.name === this.pokemonEditado.name) {
+          found = true;
+          break;
+        }
+        current = current.evolves_to[0];
+      }
+
+      if (found && current.evolves_to.length > 0) {
+        const nextEvolutionName = current.evolves_to[0].species.name;
+        this.pokemonService.getDetalhesPokemon(nextEvolutionName).subscribe(nextEvo => {
+          this.pokemonEditado = nextEvo; // Troca instantânea
+        });
+      }
+    });
+  }
+
+private buscarProximaEvolucao(chain: any, nomeAtual: string): string | null {
+  if (!chain) return null;
+
+  if (chain.species.name === nomeAtual) {
+    if (chain.evolves_to.length > 0) {
+      return chain.evolves_to[0].species.name;
+    }
+    return null;
+  }
+
+  for (const next of chain.evolves_to) {
+    const resultado = this.buscarProximaEvolucao(next, nomeAtual);
+    if (resultado) return resultado;
+  }
+
+  return null;
+}
+
 }

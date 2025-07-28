@@ -1,13 +1,11 @@
 .card-3d-wrapper {
-  transition: transform 0.1s ease;
-  will-change: transform;
+  transform: none !important;
   max-width: 600px;
   margin: 0 auto;         
   display: flex;
   justify-content: center;
   position: relative;     
 }
-
 
 .btn-toggle-3d {
   position: absolute;
@@ -24,7 +22,6 @@
 
   &:hover {
     background: #fbe9e7;
-    transform: scale(1.1);
   }
 }
 
@@ -41,8 +38,6 @@
 .pokemon-card {
   padding: 20px;
   border-radius: 10px;
-  
- 
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
   
   .card-header {
@@ -93,8 +88,37 @@
       box-shadow: 0 0 10px gold;
     }
   }
+}
 
+.info-section {
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 
+    .info-label {
+      font-weight: bold;
+      color: white;
+    }
+
+    .info-value {
+      color: white;
+    }
+  }
+
+  .types-container {
+    display: flex;
+    gap: 8px;
+
+    .tipo-badge {
+      padding: 4px 8px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  }
 }
 
 .actions-section {
@@ -103,6 +127,11 @@
   margin-top: 20px;
 
   .left-button {
+    display: flex;
+    align-items: center;
+  }
+
+  .center-button {
     display: flex;
     align-items: center;
   }
@@ -118,7 +147,6 @@
     }
   }
 }
-
 
 $type-colors: (
   normal: #A8A878,
@@ -140,7 +168,6 @@ $type-colors: (
   steel: #B8B8D0,
   fairy: #EE99AC
 );
-
 
 @each $type, $color in $type-colors {
   .pokemon-card.#{$type} {
@@ -166,12 +193,10 @@ $type-colors: (
   }
 }
 
-
 mat-divider {
   margin: 15px 0;
   border-top-color: rgba(255, 255, 255, 0.2);
 }
-
 
 .edit-field {
   .mat-form-field-outline {
@@ -181,5 +206,39 @@ mat-divider {
   
   .mat-input-element {
     color: white !important;
+  }
+}
+
+.candy-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 6px; 
+  vertical-align: middle;
+}
+
+.error-message-container {
+  text-align: center;
+  color: rgb(221, 100, 100);
+  margin-top: 20px;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+
+  .error-image {
+    width: 150px;
+    margin-bottom: 20px;
+  }
+
+  .error-message {
+    color: white;
+    text-align: center;
+
+    h2 {
+      margin-bottom: 10px;
+    }
   }
 }
