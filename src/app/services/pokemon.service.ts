@@ -8,7 +8,7 @@ import { Tipo, Geracao, PokemonDetalhado, PokemonTabela } from '../models/pokemo
   providedIn: 'root'
 })
 export class PokemonService {
-  private apiBase = 'https://pokeapi.co/api/v2';
+  private apiUrl  = 'https://pokeapi.co/api/v2';
   private storageKey = 'pokemon_edicoes';
 
   private edicoesSubject = new BehaviorSubject<PokemonDetalhado[]>([]);
@@ -28,54 +28,72 @@ export class PokemonService {
   }
 
   getTipos(): Observable<{ results: Tipo[] }> {
-    return this.http.get<{ results: Tipo[] }>(`${this.apiBase}/type`);
+    return this.http.get<{ results: Tipo[] }>(`${this.apiUrl }/type`);
   }
 
   getGeracoes(): Observable<{ results: Geracao[] }> {
-    return this.http.get<{ results: Geracao[] }>(`${this.apiBase}/generation`);
+    return this.http.get<{ results: Geracao[] }>(`${this.apiUrl }/generation`);
   }
 
   getPokemonsPorGeracao(geracaoId: number): Observable<{ pokemon_species: any[] }> {
-    return this.http.get<{ pokemon_species: any[] }>(`${this.apiBase}/generation/${geracaoId}`);
+    return this.http.get<{ pokemon_species: any[] }>(`${this.apiUrl }/generation/${geracaoId}`);
   }
 
   getDetalhesPokemon(id: string | number): Observable<PokemonDetalhado> {
-    return this.http.get<PokemonDetalhado>(`${this.apiBase}/pokemon/${id}`);
+    return this.http.get<PokemonDetalhado>(`${this.apiUrl }/pokemon/${id}`);
   }
 
   getTodosPokemons(limit = 10000): Observable<{ results: { name: string, height: number, tipo: string, url: string }[] }> {
-    return this.http.get<{ results: { name: string, height: number, tipo: string, url: string }[] }>(`${this.apiBase}/pokemon?limit=${limit}`);
+    return this.http.get<{ results: { name: string, height: number, tipo: string, url: string }[] }>(`${this.apiUrl }/pokemon?limit=${limit}`);
   }
 
-  getPokemonsParaTabela(): Observable<PokemonTabela[]> {
-    return this.getTodosPokemons().pipe(
-      switchMap(response =>
-        from(response.results).pipe(
-          concatMap((pokemon, index) => {
-            const pokemonBase: PokemonTabela = {
-              pokedex: index + 1,
-              nome: pokemon.name,
-              height: 0,
-              tipo: '',
-              geracao: this.determinarGeracao(index + 1),
-              sprite: ''
-            };
+  getPokemonsParaTabela(
+    pageIndex: number,
+    pageSize: number
+  ): Observable<{ total: number; data: PokemonTabela[] }> {
 
-            return this.http.get<any>(pokemon.url).pipe(
-              map(details => ({
-                ...pokemonBase,
-                height: details.height,
-                tipo: details.types[0]?.type?.name || '',
-                sprite: details.sprites.front_default || ''
-              })),
-              catchError(() => of(pokemonBase))
-            );
-          }),
-          toArray()
-        )
+    const offset = pageIndex * pageSize;
+
+    return this.http
+      .get<{ count: number; results: { name: string; url: string }[] }>(
+        `${this.apiUrl }/pokemon?limit=${pageSize}&offset=${offset}`
       )
-    );
+      .pipe(
+        switchMap(response =>
+          from(response.results).pipe(
+            concatMap((pokemon, index) => {
+
+              const pokedexNumber = offset + index + 1;
+
+              const pokemonBase: PokemonTabela = {
+                pokedex: pokedexNumber,
+                nome: pokemon.name,
+                height: 0,
+                tipo: '',
+                geracao: this.determinarGeracao(pokedexNumber),
+                sprite: ''
+              };
+
+              return this.http.get<any>(pokemon.url).pipe(
+                map(details => ({
+                  ...pokemonBase,
+                  height: details.height,
+                  tipo: details.types[0]?.type?.name || '',
+                  sprite: details.sprites.front_default || ''
+                })),
+                catchError(() => of(pokemonBase))
+              );
+            }),
+            toArray(),
+            map(data => ({
+              total: response.count,
+              data
+            }))
+          )
+        )
+      );
   }
+
 
   private determinarGeracao(id: number): string {
     if (id <= 151) return 'generation-i';
@@ -106,7 +124,7 @@ export class PokemonService {
       return of(edicaoDireta);
     }
 
-    return this.http.get<PokemonDetalhado>(`${this.apiBase}/pokemon/${nomeOuId}`).pipe(
+    return this.http.get<PokemonDetalhado>(`${this.apiUrl }/pokemon/${nomeOuId}`).pipe(
       tap(pokemon => this.cache.set(chave, pokemon)),
       catchError(() => of(null))
     );
@@ -146,5 +164,13 @@ salvarEdicao(pokemon: PokemonDetalhado): void {
   
   this.cache.set(pokemon.name.toLowerCase(), pokemonOtimizado);
   this.cache.set(pokemon.id.toString(), pokemonOtimizado);
+}
+
+getEvolutionChainFromSpecies(speciesUrl: string): Observable<any> {
+  return this.http.get<any>(speciesUrl).pipe(
+    switchMap(species =>
+      this.http.get<any>(species.evolution_chain.url)
+    )
+  );
 }
 }

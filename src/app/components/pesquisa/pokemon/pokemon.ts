@@ -15,6 +15,10 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { PokemonTabela } from '../../../models/pokemon.model';
 import { PokedexLista } from '../../pokedex/pokedex-lista/pokedex-lista';
 import { PokemonStatus } from '../../status/pokemon-status/pokemon-status';
+import { PageEvent } from '@angular/material/paginator';
+import { finalize } from 'rxjs/operators';
+
+
 
 @Component({
   selector: 'app-pokemon',
@@ -53,7 +57,11 @@ import { PokemonStatus } from '../../status/pokemon-status/pokemon-status';
     ])
   ]
 })
-export class Pokemon implements OnInit, AfterViewInit {
+export class Pokemon implements OnInit {
+  pageIndex: number = 0;
+  pageSize: number = 10; 
+  totalRegistros: number = 0;
+
   public logo = 'assets/imagens/Pokemon_logo.png';
   public filtroNome: string = '';
   public filtroTipo: string = '';
@@ -62,8 +70,12 @@ export class Pokemon implements OnInit, AfterViewInit {
   public tipos: { name: string }[] = [];
   public geracoes: { name: string; url: string }[] = [];
   public dataSource = new MatTableDataSource<PokemonTabela>();
-  public isLoading$ = new BehaviorSubject<boolean>(true);
+
+  public isLoading: boolean = true;
+
   public todosPokemons: PokemonTabela[] = [];
+  public pokemonsFiltrados: PokemonTabela[] = [];
+
 
   public atualizarWidget = 0;
   public widgetPosicao = { top: 200, left: 200 };
@@ -92,9 +104,6 @@ export class Pokemon implements OnInit, AfterViewInit {
     this.carregarWidgetsAtivos();
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-  }
 
   // Lógica de filtros
   private carregarFiltros(): void {
@@ -112,26 +121,60 @@ export class Pokemon implements OnInit, AfterViewInit {
     });
   }
 
-  private carregarPokemons(): void {
-    this.isLoading$.next(true);
+  carregarPokemons(): void {
+    this.isLoading = true;
 
-    this.pokemonService.getPokemonsParaTabela().subscribe({
-      next: pokemons => {
-        this.todosPokemons = pokemons;
-        this.dataSource.data = pokemons;
-        this.isLoading$.next(false);
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        console.error('Erro ao carregar pokémons para tabela', err);
-        this.isLoading$.next(false);
-      }
-    });
+    this.pokemonService
+      .getPokemonsParaTabela(0, 10000)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges(); 
+        })
+      )
+      .subscribe({
+        next: response => {
+          this.todosPokemons = response.data;
+          this.pokemonsFiltrados = response.data;
+          this.totalRegistros = response.data.length;
+
+          this.atualizarPagina();
+        },
+        error: err => {
+          console.error('Erro ao carregar:', err);
+        }
+      });
+  }
+
+
+
+
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.atualizarPagina();
   }
 
   filtrar(): void {
-    this.aplicarFiltros();
+    this.pageIndex = 0;
+
+    const nomeFiltro = this.filtroNome.toLowerCase().trim();
+    const tipoFiltro = this.filtroTipo.toLowerCase().trim();
+    const geracaoFiltro = this.filtroGeracao.toLowerCase().trim();
+
+    this.pokemonsFiltrados = this.todosPokemons.filter(pokemon => {
+      const nomeMatch = !nomeFiltro || pokemon.nome.toLowerCase().includes(nomeFiltro);
+      const tipoMatch = !tipoFiltro || pokemon.tipo.toLowerCase().includes(tipoFiltro);
+      const geracaoMatch = !geracaoFiltro || pokemon.geracao.toLowerCase() === geracaoFiltro;
+      return nomeMatch && tipoMatch && geracaoMatch;
+    });
+
+    this.totalRegistros = this.pokemonsFiltrados.length;
+
+    this.atualizarPagina();
   }
+
 
   private aplicarFiltros(): void {
     const nomeFiltro = this.filtroNome.toLowerCase().trim();
@@ -275,7 +318,7 @@ export class Pokemon implements OnInit, AfterViewInit {
   }
 
   getSlotPosicao(i: number): { top: string, left: string } {
-    const col = i % 3; // 3 colunas por linha
+    const col = i % 3; 
     const row = Math.floor(i / 3);
     return {
       top: `${300 + row * 140}px`,
@@ -285,5 +328,12 @@ export class Pokemon implements OnInit, AfterViewInit {
 
   incrementarAtualizarWidget(): void {
     this.atualizarWidget++;
+  }
+
+  private atualizarPagina(): void {
+    const inicio = this.pageIndex * this.pageSize;
+    const fim = inicio + this.pageSize;
+
+    this.dataSource.data = this.pokemonsFiltrados.slice(inicio, fim);
   }
 }
