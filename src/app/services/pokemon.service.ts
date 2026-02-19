@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, BehaviorSubject, from } from 'rxjs';
 import { tap, switchMap, catchError, map, concatMap, toArray } from 'rxjs/operators';
 import { Tipo, Geracao, PokemonDetalhado, PokemonTabela } from '../models/pokemon.model';
+import { mergeMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,8 @@ export class PokemonService {
   public edicoes$ = this.edicoesSubject.asObservable();
 
   private cache = new Map<string, PokemonDetalhado>();
+  private evolutionCache = new Map<string, any>();
+
 
   constructor(private http: HttpClient) {
   this.carregarEdicoesIniciais();
@@ -56,12 +59,12 @@ export class PokemonService {
 
     return this.http
       .get<{ count: number; results: { name: string; url: string }[] }>(
-        `${this.apiUrl }/pokemon?limit=${pageSize}&offset=${offset}`
+        `${this.apiUrl}/pokemon?limit=${pageSize}&offset=${offset}`
       )
       .pipe(
         switchMap(response =>
           from(response.results).pipe(
-            concatMap((pokemon, index) => {
+            mergeMap((pokemon, index) => {
 
               const pokedexNumber = offset + index + 1;
 
@@ -83,12 +86,17 @@ export class PokemonService {
                 })),
                 catchError(() => of(pokemonBase))
               );
-            }),
+
+            }, 10),
             toArray(),
-            map(data => ({
-              total: response.count,
-              data
-            }))
+            map(data => {
+              const ordenado = data.sort((a, b) => a.pokedex - b.pokedex);
+
+              return {
+                total: response.count,
+                data: ordenado
+              };
+            })
           )
         )
       );
@@ -107,28 +115,30 @@ export class PokemonService {
     return 'generation-ix';
   }
 
-  getPokemonComEdicoes(nomeOuId: string | number): Observable<PokemonDetalhado | null> {
-    const chave = String(nomeOuId).toLowerCase();
+getPokemonComEdicoes(id: number): Observable<PokemonDetalhado | null> {
+
+    const chave = id.toString();
 
     if (this.cache.has(chave)) {
       return of(this.cache.get(chave)!);
     }
 
-    const edicoesSalvas = JSON.parse(sessionStorage.getItem(this.storageKey) || '[]') as PokemonDetalhado[];
-    const edicaoDireta = edicoesSalvas.find(p =>
-      p.name?.toLowerCase() === chave || p.id === Number(nomeOuId)
-    );
+    const edicoesSalvas = this.getEdicoesSalvas();
+    const edicao = edicoesSalvas.find(p => p.id === id);
 
-    if (edicaoDireta) {
-      this.cache.set(chave, edicaoDireta);
-      return of(edicaoDireta);
+    if (edicao) {
+      this.cache.set(chave, edicao);
+      return of(edicao);
     }
 
-    return this.http.get<PokemonDetalhado>(`${this.apiUrl }/pokemon/${nomeOuId}`).pipe(
-      tap(pokemon => this.cache.set(chave, pokemon)),
-      catchError(() => of(null))
-    );
-  }
+    return this.http
+      .get<PokemonDetalhado>(`${this.apiUrl}/pokemon/${id}`)
+      .pipe(
+        tap(pokemon => this.cache.set(chave, pokemon)),
+        catchError(() => of(null))
+      );
+}
+
 
 getEdicoesSalvas(): PokemonDetalhado[] {
   const dados = sessionStorage.getItem(this.storageKey);
@@ -167,10 +177,22 @@ salvarEdicao(pokemon: PokemonDetalhado): void {
 }
 
 getEvolutionChainFromSpecies(speciesUrl: string): Observable<any> {
+
+  // 🔹 Se já existe no cache → retorna instantâneo
+  if (this.evolutionCache.has(speciesUrl)) {
+    return of(this.evolutionCache.get(speciesUrl));
+  }
+
+  // 🔹 Caso contrário → busca e salva
   return this.http.get<any>(speciesUrl).pipe(
     switchMap(species =>
       this.http.get<any>(species.evolution_chain.url)
-    )
+    ),
+    tap(chain => {
+      this.evolutionCache.set(speciesUrl, chain);
+    }),
+    catchError(() => of(null))
   );
 }
+
 }

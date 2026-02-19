@@ -104,8 +104,6 @@ export class Pokemon implements OnInit {
     this.carregarWidgetsAtivos();
   }
 
-
-  // Lógica de filtros
   private carregarFiltros(): void {
     this.pokemonService.getTipos().subscribe({
       next: tipos => {
@@ -145,10 +143,6 @@ export class Pokemon implements OnInit {
         }
       });
   }
-
-
-
-
 
   onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;

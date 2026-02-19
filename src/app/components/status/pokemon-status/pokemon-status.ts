@@ -100,27 +100,44 @@ constructor(
     this.arrastando = false;
   }
 
- buscarPokemon(): void {
+buscarPokemon(): void {
   const nome = this.nomePesquisa.trim().toLowerCase();
+
   if (!nome) {
     this.dadosPokemon = null;
     sessionStorage.removeItem('ultimaPesquisaStatus');
     return;
   }
 
-  this.pokemonService.getPokemonComEdicoes(nome).subscribe({
-    next: (data) => {
-      if (!data) {
+  
+  this.pokemonService.getDetalhesPokemon(nome).subscribe({
+    next: (pokemon) => {
+
+      if (!pokemon) {
         this.dadosPokemon = null;
         return;
       }
 
-      this.dadosPokemon = this.formatarDadosPokemon(data);
-      sessionStorage.setItem('ultimaPesquisaStatus', data.name);
+      this.pokemonService.getPokemonComEdicoes(pokemon.id).subscribe({
+        next: (data) => {
+          if (!data) {
+            this.dadosPokemon = null;
+            return;
+          }
+
+          this.dadosPokemon = this.formatarDadosPokemon(data);
+          sessionStorage.setItem('ultimaPesquisaStatus', data.name);
+        },
+        error: () => this.dadosPokemon = null
+      });
+
     },
-    error: () => this.dadosPokemon = null
+    error: () => {
+      this.dadosPokemon = null;
+    }
   });
 }
+
 
 
   private formatarDadosPokemon(data: any): any {

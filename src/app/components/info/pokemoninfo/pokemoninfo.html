@@ -20,7 +20,14 @@
     </button>
 
     <div class="pokemon-card-container">
-      <mat-card [class]="'pokemon-card ' + (pokemonEditado.types?.[0]?.type?.name || 'normal')">
+      <mat-card
+      [ngClass]="[
+        'pokemon-card',
+        pokemonEditado.types?.[0]?.type?.name || 'normal',
+        isEvolving ? 'evolving' : '',
+        isRevealing ? 'revealing' : ''
+      ]">
+
         <div class="card-header">
           <h1 class="pokemon-name" *ngIf="!modoEdicao">{{ pokemonEditado.name | titlecase }}</h1>
 
@@ -103,14 +110,16 @@
             </div>
           </div>
         </div>
+       <div
+          class="evolution-skeleton"
+          *ngIf="showSkeleton"
+          [class.fade-out]="isRevealing">
+        </div>
+
       </mat-card>
     </div>
   </div>
 </div>
-
-<!-- Removi a mensagem de evolução com animação -->
-
-
 
 <ng-template #errorTemplate>
   <div class="error-container">

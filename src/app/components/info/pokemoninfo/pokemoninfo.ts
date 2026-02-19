@@ -14,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { trigger, transition, animate, style, state, AnimationTriggerMetadata } from '@angular/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-pokemoninfo',
@@ -74,10 +76,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 
 export class Pokemoninfo implements OnInit {
+  isRevealing = false;
+  showSkeleton = false;
   ativar3D = false;
   transformStyle = '';
-  pokemonOriginal: any = null; // Dados originais da API
-  pokemonEditado: any = null;  // Cópia para edição
+  pokemonOriginal: any = null; 
+  pokemonEditado: any = null; 
   modoEdicao = false;
   isLoading = true;
   errorMessage: string | null = null;
@@ -89,7 +93,8 @@ export class Pokemoninfo implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private pokemonService: PokemonService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit(): void {
@@ -229,35 +234,81 @@ export class Pokemoninfo implements OnInit {
   }
 
 mostrarProximaEvolucao() {
-  if (!this.pokemonEditado || !this.pokemonEditado.species?.url) return;
+  if (!this.pokemonEditado?.species?.url) return;
 
-  this.pokemonService.getEvolutionChainFromSpecies(this.pokemonEditado.species.url).subscribe(chain => {
-    let current = chain.chain;
-    let found = false;
+  this.isEvolving = true;
+  this.showSkeleton = true;
 
-    while (current) {
-      if (current.species.name === this.pokemonEditado.name) {
-        found = true;
-        break;
+  this.pokemonService
+    .getEvolutionChainFromSpecies(this.pokemonEditado.species.url)
+    .subscribe(chain => {
+
+      let current = chain.chain;
+
+      while (current) {
+        const idDaChain = this.extrairIdDaUrl(current.species.url);
+        if (idDaChain === this.pokemonEditado.id) break;
+        current = current.evolves_to[0];
       }
-      current = current.evolves_to[0];
-    }
 
-    if (found && current.evolves_to.length > 0) {
-      const nextEvolutionName = current.evolves_to[0].species.name;
-      this.pokemonService.getDetalhesPokemon(nextEvolutionName).subscribe(nextEvo => {
-        this.pokemonEditado = nextEvo;
-        this.mensagemSemEvolucao = null;
-      });
-    } else {
-      this.mensagemSemEvolucao = "Este Pokémon não possui mais evoluções!";
+      if (current?.evolves_to?.length > 0) {
 
-      // Faz a mensagem sumir após 3 segundos
-      setTimeout(() => {
-        this.mensagemSemEvolucao = null;
-      }, 3000);
-    }
-  });
+        const nextId = this.extrairIdDaUrl(
+          current.evolves_to[0].species.url
+        );
+
+        this.pokemonService
+          .getPokemonComEdicoes(nextId)
+          .subscribe({
+            next: (nextEvo) => {
+              if (!nextEvo) return;
+
+           
+              setTimeout(() => {
+
+                this.pokemonEditado = nextEvo;
+
+                
+                this.isRevealing = true;
+
+                this.cdr.detectChanges();  
+
+               
+                setTimeout(() => {
+                  this.showSkeleton = false;
+                  this.isEvolving = false;
+                  this.isRevealing = false;
+                }, 600);
+
+              }, 300); 
+            },
+            error: () => {
+              this.resetEvolutionState();
+            }
+          });
+
+      } else {
+        this.mensagemSemEvolucao = 
+          "Este Pokémon não possui mais evoluções!";
+        this.resetEvolutionState();
+
+        setTimeout(() => {
+          this.mensagemSemEvolucao = null;
+        }, 3000);
+      }
+    });
+}
+
+private resetEvolutionState() {
+  this.showSkeleton = false;
+  this.isEvolving = false;
+  this.isRevealing = false;
+  this.cdr.detectChanges(); 
+}
+
+private extrairIdDaUrl(url: string): number {
+  const partes = url.split('/');
+  return Number(partes[partes.length - 2]);
 }
 
 
