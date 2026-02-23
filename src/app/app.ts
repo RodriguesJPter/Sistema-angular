@@ -26,7 +26,7 @@ import { PokemonService } from './services/pokemon.service';
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      padding: 90px;
+      padding: 0px;
     }
     
     .content {

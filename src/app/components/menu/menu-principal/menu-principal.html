@@ -1,15 +1,59 @@
 <header class="menu-topo">
-  <nav class="nav-container">
-    <div class="logo">
-      <img [src]="logo" alt="Logo" class="imagem_logo">
+  <div class="menu-container">
+
+    <div class="cd-wrapper">
+
+      <!-- METABALL GIGANTE -->
+      <div class="metaball-layer" *ngIf="menuAberto">
+        <app-metaballs
+          class="metaball-canvas"
+          [ballCount]="30"
+          [animationSize]="140"
+          [color]="'#1A2517'"
+          [enableTransparency]="true">
+        </app-metaballs>
+      </div>
+
+      <!-- CD -->
+      <div class="cd-click-area" (click)="toggleMenu()">
+        <div class="cd-background"></div>
+
+        <img 
+          src="assets/imagens/Blank_cd.png" 
+          alt="CD Menu"
+          class="cd-image"
+          [class.paused]="menuTotalmenteAberto"
+        />
+      </div>
+
+      <!-- BUBBLES -->
+        <div class="menu-bubbles" [class.ativo]="menuAberto">
+
+          <button class="bubble bubble-1" (click)="irParaPokemon($event)" (transitionend)="onTransitionEnd($event)"
+>
+            <span class="icon">
+              <img src="assets/imagens/pokemon_icon.png" class = "icon1"/>
+            </span>
+            <span class="label">Pokedex</span>
+          </button>
+
+          <button class="bubble bubble-2">
+            <span class="icon">
+              <img src="assets/imagens/icon_light.PNG" class = "icon2"/>
+            </span>
+            <span class="label">Game</span>
+          </button>
+
+          <button class="bubble bubble-3" (click)="irParaHome($event)">
+            <span class="icon">
+              <img src="assets/icons/casa.svg" class = "icon3"/>
+            </span>
+            <span class="label">Home</span>
+          </button>
+
+        </div>
+
     </div>
-    <ul class="nav-links">
-      <li>
-        <button [routerLink]="['/']" routerLinkActive="active">
-          <img src="assets/imagens/pokemon_icon.png" alt="Pokémon Icon" class="pokemon-icon">
-          Pokemon
-        </button>
-      </li>
-    </ul>
-  </nav>
+
+  </div>
 </header>

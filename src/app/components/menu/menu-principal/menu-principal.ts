@@ -1,26 +1,57 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
-import { PokemonService } from '../../../services/pokemon.service';
-import { take } from 'rxjs/operators'; 
+import { MetaballsComponent } from '../../metaballs/metaballs';
 
 @Component({
   selector: 'app-menu-principal',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule, 
+    MetaballsComponent
+  ],
   templateUrl: './menu-principal.html',
   styleUrl: './menu-principal.scss'
 })
 export class MenuPrincipal {
-  public logo = 'assets/imagens/Logo_unholy_Studio_light.PNG';
 
-  constructor(private router: Router, private pokemonService: PokemonService) {}
+  menuAberto = false;
+  animando = false;
+  menuTotalmenteAberto = false; 
 
-  // menu-principal.ts
- // No método irParaPokemon()
-irParaPokemon() {
-    this.router.navigate(['/']);
+   constructor(private router: Router) {}
+
+  toggleMenu() {
+
+    if (this.animando) return;
+
+    this.animando = true;
+    this.menuAberto = !this.menuAberto;
+  }
+
+  onTransitionEnd(event: TransitionEvent) {
+
+    if (event.propertyName !== 'transform') return;
+
+    this.animando = false;
+
+    // Se terminou abrindo
+    if (this.menuAberto) {
+      this.menuTotalmenteAberto = true;
+    } 
+    // Se terminou fechando
+    else {
+      this.menuTotalmenteAberto = false;
+    }
+  }
+  irParaPokemon(event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/pokemon']);
+  }
+
+  irParaHome(event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/home']);
   }
 }
