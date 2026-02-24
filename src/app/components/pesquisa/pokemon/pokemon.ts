@@ -18,8 +18,6 @@ import { PokemonStatus } from '../../status/pokemon-status/pokemon-status';
 import { PageEvent } from '@angular/material/paginator';
 import { finalize } from 'rxjs/operators';
 
-
-
 @Component({
   selector: 'app-pokemon',
   standalone: true,
