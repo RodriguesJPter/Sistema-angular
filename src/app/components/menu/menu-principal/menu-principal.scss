@@ -76,6 +76,15 @@ $expanded-width: 220px;
   animation-play-state: paused;
 }
 
+.menu-music-player {
+  position: absolute;
+  top: 81%;
+  left: 360px; 
+  transform: translateY(-50%);
+  z-index: 9999;
+  box-shadow: none !important;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

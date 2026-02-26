@@ -12,13 +12,14 @@ import { PokemonService } from './services/pokemon.service';
     CommonModule, 
     MenuPrincipal, 
     MatIconModule, 
-    RouterOutlet  
+    RouterOutlet, 
   ],
   template: `
    <app-menu-principal/>
 
   <div class="main-content">
     <router-outlet></router-outlet>
+   
   </div>
   `,
   styles: [`

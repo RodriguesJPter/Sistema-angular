@@ -36,7 +36,7 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
   private model!: THREE.Object3D;
   private mouseX = 0;
   private mouseY = 0;
-  private mouseOffsetX = 0.165;
+  private mouseOffsetX = 0.3;
   private mouseOffsetY = 0.1;
 
   ngAfterViewInit(): void {

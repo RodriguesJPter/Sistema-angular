@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MetaballsComponent } from '../../metaballs/metaballs';
+import { MusicPlayerComponent } from '../../music-player/music-player';
+import { MusicService } from '../../../services/music.service';
 
 @Component({
   selector: 'app-menu-principal',
@@ -9,7 +11,8 @@ import { MetaballsComponent } from '../../metaballs/metaballs';
   imports: [
     CommonModule,
     RouterModule, 
-    MetaballsComponent
+    MetaballsComponent,
+    MusicPlayerComponent
   ],
   templateUrl: './menu-principal.html',
   styleUrl: './menu-principal.scss'
@@ -20,7 +23,10 @@ export class MenuPrincipal {
   animando = false;
   menuTotalmenteAberto = false; 
 
-   constructor(private router: Router) {}
+   constructor(
+    private router: Router,
+    private music: MusicService
+   ) {}
 
   toggleMenu() {
 
@@ -36,13 +42,15 @@ export class MenuPrincipal {
 
     this.animando = false;
 
-    // Se terminou abrindo
     if (this.menuAberto) {
       this.menuTotalmenteAberto = true;
+
+      this.music.pause();
     } 
-    // Se terminou fechando
     else {
       this.menuTotalmenteAberto = false;
+
+      this.music.resume();
     }
   }
   irParaPokemon(event: Event) {

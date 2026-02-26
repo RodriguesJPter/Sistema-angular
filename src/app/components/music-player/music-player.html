@@ -1,0 +1,25 @@
+<div class="music-player">
+
+  <button 
+    class="mute-btn"
+    (click)="toggleMute()">
+
+    <img 
+      [src]="volumeIcon"
+      alt="volume icon"
+      class="volume-icon"
+    />
+
+  </button>
+
+  <input
+    class="volume-slider"
+    type="range"
+    min="0"
+    max="1"
+    step="0.01"
+    [value]="music.getVolume()"
+    (input)="changeVolume($event)"
+  />
+
+</div>
