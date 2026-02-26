@@ -5,8 +5,11 @@ import { HomeTela } from './screens/homeTela/homeTela';
 import { TelaPokemon } from './screens/Pokemon-tela/telaPokemon';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+
   { path: 'home', component: HomeTela },
-  { path: 'pokemon', component: TelaPokemon},
+  { path: 'pokemon', component: TelaPokemon },
   { path: 'pokemoninfo/:id', component: Pokemoninfo },
-  { path: '**', redirectTo: '' }
+
+  { path: '**', redirectTo: 'home' }
 ];

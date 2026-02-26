@@ -160,7 +160,17 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
         desiredX = 0;
       }
 
-      this.model.rotation.y += (desiredY - this.model.rotation.y) * 0.08;
+      // 🔥 CORREÇÃO DO GIRO EM 360°
+
+      const currentY = this.model.rotation.y;
+      let deltaY = desiredY - currentY;
+
+      // normaliza entre -PI e +PI
+      deltaY = this.normalizeAngle(deltaY);
+
+      this.model.rotation.y += deltaY * 0.08;
+
+      // X pode continuar normal (não gira 360 como Y)
       this.model.rotation.x += (desiredX - this.model.rotation.x) * 0.08;
 
       this.wasMouseInside = this.isMouseInside;
@@ -190,5 +200,9 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
 
     this.mouseX = ((x - 0.5) + this.mouseOffsetX) * 2;
     this.mouseY = ((y - 0.35) + this.mouseOffsetY) * 2;
+  }
+
+  private normalizeAngle(angle: number): number {
+    return Math.atan2(Math.sin(angle), Math.cos(angle));
   }
 }
