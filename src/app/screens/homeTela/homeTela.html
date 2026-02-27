@@ -42,11 +42,39 @@
       </path>
     </svg>
   </div>
-  <app-target-cursor [activeArea]="'.dark-section'"></app-target-cursor>
-  <div class="dark-section" #darkSection>
+  <app-target-cursor
+    [activeArea]="'.dark-section'"
+    [dotOffsetX]="0"
+    [dotOffsetY]="-0.3">
+  </app-target-cursor>
+
+  <div class="dark-section">
+
     <div class="componente-3d">
       <app-angel3d></app-angel3d>
     </div>
+
+
+    <div class="tech-card tech-1 cursor-target">
+      <h3>Angular</h3>
+      <p>Framework principal da aplicação, responsável por toda a arquitetura SPA.</p>
+    </div>
+
+    <div class="tech-card tech-2 cursor-target">
+      <h3>GSAP</h3>
+      <p>Biblioteca utilizada para animações avançadas e controle fino de movimento.</p>
+    </div>
+
+    <div class="tech-card tech-3 cursor-target">
+      <h3>Three.js</h3>
+      <p>Renderização 3D e manipulação de objetos no ambiente interativo.</p>
+    </div>
+
+    <div class="tech-card tech-4 cursor-target">
+      <h3>SCSS</h3>
+      <p>Organização e escalabilidade do estilo com variáveis e modularização.</p>
+    </div>
+
   </div>
 
 </section>

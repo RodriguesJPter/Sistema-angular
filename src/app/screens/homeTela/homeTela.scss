@@ -133,10 +133,66 @@ $primary-light: #ACC8A2;
   width: 100%;
   min-height: 600px;
   background-color: $primary-dark;
-
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.tech-card {
+  position: absolute;
+  width: 260px;
+  padding: 22px;
+  border-radius: 18px;
+
+  background: 
+    radial-gradient(
+      circle at bottom left,
+      darken($primary-light, 15%) 0%,
+      darken($primary-light, 8%) 25%,
+      $primary-light 60%
+    );
+
+  color: $primary-dark;
+
+  border: 2px solid darken($primary-light, 12%);
+
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.35);
+
+  transition: 
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.tech-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+/* ========================= */
+/* POSIÇÕES CUSTOMIZÁVEIS */
+/* ========================= */
+
+.tech-1 {
+  top: 14%;
+  left: 51%;
+}
+
+.tech-2 {
+  top: 35%;
+  right: 22%;
+}
+
+.tech-3 {
+  bottom: 27%;
+  left: 57%;
+}
+
+.tech-4 {
+  bottom: 6%;
+  right: 38%;
 }
 
 .componente-3d {

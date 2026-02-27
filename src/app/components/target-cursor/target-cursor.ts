@@ -22,49 +22,75 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
   @Input() spinDuration: number = 2;
   @Input() hideDefaultCursor: boolean = true;
   @Input() hoverDuration: number = 0.2;
-  @Input() parallaxOn: boolean = true;
   @Input() activeArea: string = '.dark-section';
+  @Input() dotOffsetX: number = 0;
+  @Input() dotOffsetY: number = 0;
+  @Input() focusOffsetY: number = -6;
 
-  @ViewChild('cursor', { static: false }) cursorRef!: ElementRef<HTMLDivElement>;
-  @ViewChild('dot', { static: false }) dotRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('cursor') cursorRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('dot') dotRef!: ElementRef<HTMLDivElement>;
 
-  private isActiveArea = false;
-  private darkSection!: HTMLElement | null;
   private corners!: NodeListOf<HTMLDivElement>;
   private spinTl!: gsap.core.Timeline;
+
   private activeTarget: Element | null = null;
+  private targetCornerPositions: { x: number; y: number }[] | null = null;
+  private activeStrength = { current: 0 };
+  private pendingRelease = false;
+
   private tickerFn!: () => void;
   private originalCursor = '';
 
-  private targetCornerPositions: { x: number; y: number }[] | null = null;
-  private activeStrength = { current: 0 };
-
   ngAfterViewInit(): void {
-    if (this.isMobile()) return;
 
-    this.darkSection = document.querySelector(this.activeArea);
+    const cursor = this.cursorRef.nativeElement;
 
-    if (!this.darkSection) return;
+    this.corners =
+      cursor.querySelectorAll<HTMLDivElement>('.target-cursor-corner');
 
-    this.darkSection.addEventListener('mouseenter', this.enableCursor);
-    this.darkSection.addEventListener('mouseleave', this.disableCursor);
-  }
+    gsap.set(cursor, {
+      xPercent: -50,
+      yPercent: -50,
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      opacity: 0
+    });
 
-  ngOnDestroy(): void {
-    this.disableCursor();
+    this.setInitialCornerPosition();
+    this.createSpin();
+    this.initTargetDetection();
 
-    if (this.darkSection) {
-      this.darkSection.removeEventListener('mouseenter', this.enableCursor);
-      this.darkSection.removeEventListener('mouseleave', this.disableCursor);
+    const activeSection = document.querySelector(this.activeArea);
+
+    if (!activeSection) return;
+
+    activeSection.addEventListener('mouseenter', this.enableCursor);
+    activeSection.addEventListener('mouseleave', this.disableCursor);
+
+    // 🔥 correção do problema de iniciar já dentro da área
+    if (activeSection.matches(':hover')) {
+      this.enableCursor();
     }
   }
 
-  private isMobile(): boolean {
-    return (
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0 ||
-      window.innerWidth <= 768
-    );
+  ngOnDestroy(): void {
+
+    this.spinTl?.kill();
+    gsap.ticker.remove(this.tickerFn);
+    window.removeEventListener('mousemove', this.moveHandler);
+
+    document.body.style.cursor = this.originalCursor;
+  }
+
+  private initMovement() {
+    window.addEventListener('mousemove', (e) => {
+      gsap.to(this.cursorRef.nativeElement, {
+        x: e.clientX,
+        y: e.clientY,
+        duration: 0.1,
+        ease: 'power3.out'
+      });
+    });
   }
 
   private createSpin() {
@@ -77,67 +103,80 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
       });
   }
 
-  private moveHandler = (e: MouseEvent) => {
-    gsap.to(this.cursorRef.nativeElement, {
-      x: e.clientX,
-      y: e.clientY,
-      duration: 0.1,
-      ease: 'power3.out'
-    });
-  };
+  private initTargetDetection() {
 
-  private mouseDownHandler = () => {
-    gsap.to(this.dotRef.nativeElement, { scale: 0.7, duration: 0.2 });
-    gsap.to(this.cursorRef.nativeElement, { scale: 0.9, duration: 0.2 });
-  };
+    this.tickerFn = () => {
 
-  private mouseUpHandler = () => {
-    gsap.to(this.dotRef.nativeElement, { scale: 1, duration: 0.2 });
-    gsap.to(this.cursorRef.nativeElement, { scale: 1, duration: 0.2 });
-  };
+      if (!this.targetCornerPositions || !this.activeTarget) return;
 
-  private enterHandler = (e: Event) => {
-    const target = (e.target as Element).closest(this.targetSelector);
-    if (!target) return;
-    if (this.activeTarget === target) return;
+      const cursorX =
+        gsap.getProperty(this.cursorRef.nativeElement, 'x') as number;
 
-    this.activeTarget = target;
-    this.spinTl.pause();
-    gsap.set(this.cursorRef.nativeElement, { rotation: 0 });
+      const cursorY =
+        gsap.getProperty(this.cursorRef.nativeElement, 'y') as number;
 
-    const rect = target.getBoundingClientRect();
-    const borderWidth = 3;
-    const cornerSize = 12;
+      this.corners.forEach((corner, i) => {
 
-    const cursorX = gsap.getProperty(this.cursorRef.nativeElement, 'x') as number;
-    const cursorY = gsap.getProperty(this.cursorRef.nativeElement, 'y') as number;
+        const targetX =
+          this.targetCornerPositions![i].x - cursorX;
 
-    this.targetCornerPositions = [
-      { x: rect.left - borderWidth, y: rect.top - borderWidth },
-      { x: rect.right - cornerSize + borderWidth, y: rect.top - borderWidth },
-      { x: rect.right - cornerSize + borderWidth, y: rect.bottom - cornerSize + borderWidth },
-      { x: rect.left - borderWidth, y: rect.bottom - cornerSize + borderWidth }
-    ];
+        const targetY =
+          this.targetCornerPositions![i].y - cursorY;
 
-    gsap.to(this.activeStrength, {
-      current: 1,
-      duration: this.hoverDuration
-    });
+        gsap.set(corner, {
+          x: targetX,
+          y: targetY
+        });
 
-    this.corners.forEach((corner, i) => {
-      gsap.to(corner, {
-        x: this.targetCornerPositions![i].x - cursorX,
-        y: this.targetCornerPositions![i].y - cursorY,
-        duration: 0.2
       });
+    };
+
+    window.addEventListener('mouseover', (e) => {
+
+      const target =
+        (e.target as Element).closest(this.targetSelector);
+
+      if (!target) return;
+      if (this.activeTarget === target) return;
+
+      this.activeTarget = target;
+
+      this.spinTl.pause();
+      gsap.set(this.cursorRef.nativeElement, { rotation: 0 });
+
+      const rect = target.getBoundingClientRect();
+
+      const borderWidth = 3;
+      const cornerSize = 12;
+
+      this.targetCornerPositions = [
+        { x: rect.left - borderWidth, y: rect.top - borderWidth + this.focusOffsetY },
+        { x: rect.right + borderWidth - cornerSize, y: rect.top - borderWidth + this.focusOffsetY },
+        { x: rect.right + borderWidth - cornerSize, y: rect.bottom + borderWidth - cornerSize + this.focusOffsetY },
+        { x: rect.left - borderWidth, y: rect.bottom + borderWidth - cornerSize + this.focusOffsetY }
+      ];
+
+      gsap.ticker.add(this.tickerFn);
+
+      gsap.to(this.activeStrength, {
+        current: 1,
+        duration: this.hoverDuration,
+        ease: 'power2.out'
+      });
+
+      target.addEventListener('mouseleave', () => {
+        this.pendingRelease = true;
+      }, { once: true });
+
     });
+  }
 
-    target.addEventListener('mouseleave', this.leaveHandler, { once: true });
-  };
+  private releaseTarget() {
 
-  private leaveHandler = () => {
     this.activeTarget = null;
     this.targetCornerPositions = null;
+
+    gsap.ticker.remove(this.tickerFn);
     gsap.set(this.activeStrength, { current: 0 });
 
     const cornerSize = 12;
@@ -159,53 +198,69 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
     });
 
     this.createSpin();
-    this.spinTl.restart();
-  };
+  }
 
   private enableCursor = () => {
-    if (this.isActiveArea) return;
-    this.isActiveArea = true;
 
-    const cursor = this.cursorRef.nativeElement;
-
-    this.originalCursor = document.body.style.cursor;
     if (this.hideDefaultCursor) {
+      this.originalCursor = document.body.style.cursor;
       document.body.style.cursor = 'none';
     }
 
-    this.corners = cursor.querySelectorAll('.target-cursor-corner');
-
-    gsap.set(cursor, {
-      xPercent: -50,
-      yPercent: -50,
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      opacity: 1
+    gsap.to(this.cursorRef.nativeElement, {
+      opacity: 1,
+      duration: 0.2
     });
 
-    this.createSpin();
-
     window.addEventListener('mousemove', this.moveHandler);
-    window.addEventListener('mouseover', this.enterHandler);
-    window.addEventListener('mousedown', this.mouseDownHandler);
-    window.addEventListener('mouseup', this.mouseUpHandler);
   };
 
   private disableCursor = () => {
-    if (!this.isActiveArea) return;
-    this.isActiveArea = false;
-
-    window.removeEventListener('mousemove', this.moveHandler);
-    window.removeEventListener('mouseover', this.enterHandler);
-    window.removeEventListener('mousedown', this.mouseDownHandler);
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-
-    this.spinTl?.kill();
 
     document.body.style.cursor = this.originalCursor;
 
-    gsap.set(this.cursorRef.nativeElement, {
-      opacity: 0
+    gsap.to(this.cursorRef.nativeElement, {
+      opacity: 0,
+      duration: 0.2
     });
+
+    window.removeEventListener('mousemove', this.moveHandler);
+
+    this.releaseTarget();
   };
+
+  private moveHandler = (e: MouseEvent) => {
+
+    if (this.pendingRelease) {
+      this.pendingRelease = false;
+      this.releaseTarget();
+    }
+
+    gsap.to(this.cursorRef.nativeElement, {
+      x: e.clientX,
+      y: e.clientY,
+      duration: 0.1,
+      ease: 'power3.out'
+    });
+
+  };
+
+  private setInitialCornerPosition() {
+
+    const cornerSize = 12;
+
+    const positions = [
+      { x: -cornerSize * 1.5, y: -cornerSize * 1.5 },
+      { x: cornerSize * 0.5, y: -cornerSize * 1.5 },
+      { x: cornerSize * 0.5, y: cornerSize * 0.5 },
+      { x: -cornerSize * 1.5, y: cornerSize * 0.5 }
+    ];
+
+    this.corners.forEach((corner, index) => {
+      gsap.set(corner, {
+        x: positions[index].x,
+        y: positions[index].y
+      });
+    });
+  }
 }
