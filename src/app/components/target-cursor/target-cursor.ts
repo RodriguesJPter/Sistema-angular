@@ -67,10 +67,13 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
     activeSection.addEventListener('mouseenter', this.enableCursor);
     activeSection.addEventListener('mouseleave', this.disableCursor);
 
-    // 🔥 correção do problema de iniciar já dentro da área
     if (activeSection.matches(':hover')) {
       this.enableCursor();
     }
+    
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+
+
   }
 
   ngOnDestroy(): void {
@@ -80,6 +83,7 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
     window.removeEventListener('mousemove', this.moveHandler);
 
     document.body.style.cursor = this.originalCursor;
+    window.removeEventListener('scroll', this.handleScroll);
   }
 
   private initMovement() {
@@ -263,4 +267,13 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
       });
     });
   }
+
+  private handleScroll = () => {
+
+    if (this.activeTarget) {
+      this.pendingRelease = false;
+      this.releaseTarget();
+    }
+
+  };
 }
