@@ -36,8 +36,8 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
   private model!: THREE.Object3D;
   private mouseX = 0;
   private mouseY = 0;
-  private mouseOffsetX = 0.3;
-  private mouseOffsetY = 0.1;
+  private mouseOffsetX = -0.670;
+  private mouseOffsetY = 0.070;
 
   ngAfterViewInit(): void {
     this.initThree();
@@ -86,17 +86,16 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
     this.scene.add(directionalLight);
 
     const mtlLoader = new MTLLoader();
-    mtlLoader.setPath('assets/modelos/');
+    mtlLoader.setPath('assets/modelos/angel_gun/');
 
-    mtlLoader.load('angel_gun.mtl', (materials) => {
+    mtlLoader.load('Meshy_AI_Winged_Revolver_0303131833_texture.mtl', (materials) => {
 
       materials.preload();
 
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
-      objLoader.setPath('assets/modelos/');
-
-      objLoader.load('angel_gun.obj', (object) => {
+      objLoader.setPath('assets/modelos/angel_gun/');
+      objLoader.load('Meshy_AI_Winged_Revolver_0303131833_texture.obj', (object) => {
 
       object.scale.set(0.5, 0.5, 0.5);
       
@@ -106,6 +105,10 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
 
       
       object.position.sub(center);
+
+      object.rotation.x = -Math.PI / 8;
+      object.rotation.y = Math.PI; 
+      object.rotation.z = 0;
 
       this.model = object;
       this.scene.add(this.model);
