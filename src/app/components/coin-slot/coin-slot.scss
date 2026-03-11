@@ -1,0 +1,64 @@
+.coin-slot-container {
+
+  /* CONTROLE MANUAL */
+  --slot-x: 933px;
+  --slot-y: 522px;
+  --slot-scale: 3;
+  --slot-rotation: 90deg;
+
+  position: fixed;
+
+  right: var(--slot-x);
+  bottom: var(--slot-y);
+
+  transform: rotate(var(--slot-rotation)) scale(var(--slot-scale));
+  transform-origin: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slot-body {
+  width: 80px;
+  height: 120px;
+
+  background: linear-gradient(145deg, #3a3a3a, #1e1e1e);
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  box-shadow:
+    inset 0 0 10px rgba(0,0,0,0.8),
+    0 4px 10px rgba(0,0,0,0.5);
+}
+
+.slot-hole {
+  width: 50px;
+  height: 10px;
+
+  background: black;
+  border-radius: 3px;
+
+  box-shadow:
+    inset 0 2px 5px rgba(255,255,255,0.1),
+    inset 0 -2px 5px rgba(0,0,0,0.8);
+}
+
+.slot-light {
+  width: 12px;
+  height: 12px;
+
+  margin-top: 15px;
+
+  border-radius: 50%;
+
+  background: #00ff99;
+
+  box-shadow:
+    0 0 8px #00ff99,
+    0 0 20px #00ff99;
+}

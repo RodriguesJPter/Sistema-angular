@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MenuPrincipal } from './components/menu/menu-principal/menu-principal';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterOutlet } from '@angular/router';
-import { PokemonService } from './services/pokemon.service';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { MusicService } from './services/music.service';
 
 @Component({
   selector: 'app-root',
@@ -15,8 +16,8 @@ import { PokemonService } from './services/pokemon.service';
     RouterOutlet, 
   ],
   template: `
-   <app-menu-principal/>
-
+  <app-menu-principal *ngIf="showMenu"></app-menu-principal>
+  
   <div class="main-content">
     <router-outlet></router-outlet>
    
@@ -39,6 +40,34 @@ import { PokemonService } from './services/pokemon.service';
 
 })
 export class App {
-  title = 'first-project-latest';
+
+  showMenu = true;
+
+  constructor(
+    private router: Router,
+    private music: MusicService
+  ) {
+
+    this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe((event: any) => {
+
+      const url = event.urlAfterRedirects;
+
+      // esconde menu na rota start
+      this.showMenu = !url.includes('start');
+
+      // START → sem música
+      if (url.includes('start')) {
+        this.music.pause();
+      } 
+      
+      // qualquer outra tela → música toca
+      else {
+        this.music.resume();
+      }
+
+    });
+  }
 }
 

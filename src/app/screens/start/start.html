@@ -1,0 +1,15 @@
+<div class="start-screen">
+
+    <app-coin (ready)="onCoinReady()"></app-coin>
+
+    <button 
+    class="start-button"
+    [class.starting]="isStarting"
+    (click)="startGame()"
+    [disabled]="!isCoinReady">
+    ▶ START GAME
+    </button>
+
+    <app-coin-slot></app-coin-slot>
+
+</div>

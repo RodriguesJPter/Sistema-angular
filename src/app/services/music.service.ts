@@ -12,10 +12,6 @@ private isPausedByMenu = false;
 constructor() {
   this.audio.loop = true;
   this.audio.volume = 0.2;
-
-  document.addEventListener('click', () => {
-    this.audio.play().catch(() => {});
-  }, { once: true });
 }
 
 pause(): void {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Angel3dComponent } from '../../components/angel3d/angel3d';
 import { TargetCursorComponent } from '../../components/target-cursor/target-cursor';
+
+
 @Component({
   selector: 'app-home-tela',
   standalone: true,
