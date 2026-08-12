@@ -1,0 +1,33 @@
+<div class="intro" [style.--px]="px" [style.--py]="py">
+
+  <div class="bg"></div>
+
+  <div class="cena">
+    <!-- palco / sombra -->
+    <div class="plataforma"></div>
+
+    <!-- personagem -->
+    <div class="char-layer">
+      <img class="char" src="assets/imagens/intro/char.png" alt="Personagem">
+    </div>
+
+    <svg class="titulo" viewBox="0 0 1000 250" preserveAspectRatio="xMidYMid meet" aria-label="Bem vindo">
+      <defs>
+        <path id="arcoTitulo" d="M 55 225 Q 500 55 945 225" fill="none"></path>
+      </defs>
+      <text text-anchor="middle">
+        <textPath href="#arcoTitulo" startOffset="50%">BEM VINDO</textPath>
+      </text>
+    </svg>
+
+    <button class="start-btn" (click)="start()"><span>Start Game</span></button>
+  </div>
+
+  <div class="onda-divisor">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+      <path class="onda-fill"
+        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+    </svg>
+  </div>
+
+</div>

@@ -32,11 +32,70 @@
 .pokemon-card-container {
   max-width: 500px;
   margin: 20px auto;
-  padding: 16px; 
-  background-color: #FFE164; 
+  padding: 16px;
+  background-color: #FFE164;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  position: relative; 
+  position: relative;
+}
+
+/* card escondido enquanto a imagem não carregou (fade suave ao revelar) */
+.pokemon-card.oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== SKELETON DE CARREGAMENTO DO CARD ===== */
+
+.card-skeleton {
+  position: absolute;
+  inset: 16px;
+  z-index: 20;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.card-skeleton .sk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-skeleton .sk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.card-skeleton .sk {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.22) 25%,
+    rgba(255, 255, 255, 0.55) 37%,
+    rgba(255, 255, 255, 0.22) 63%
+  );
+  background-size: 400% 100%;
+  animation: sk-shine 1.4s ease infinite;
+}
+
+.card-skeleton .sk-name { width: 55%; height: 26px; }
+.card-skeleton .sk-num  { width: 58px; height: 20px; }
+.card-skeleton .sk-img  { width: 72%; height: 210px; margin: 4px auto; border-radius: 14px; }
+.card-skeleton .sk-line { width: 82%; height: 15px; }
+.card-skeleton .sk-line.short { width: 52%; }
+.card-skeleton .sk-btn  { width: 92px; height: 36px; }
+.card-skeleton .sk-btn.round { width: 44px; height: 44px; border-radius: 50%; }
+
+@keyframes sk-shine {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .pokemon-card {
@@ -73,6 +132,10 @@
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 10px;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     .main-image {
       width: 100%;

@@ -121,18 +121,18 @@ export class Pokemon implements OnInit {
     this.isLoading = true;
 
     this.pokemonService
-      .getPokemonsParaTabela(0, 10000)
+      .getListaBase()
       .pipe(
         finalize(() => {
           this.isLoading = false;
-          this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
         })
       )
       .subscribe({
-        next: response => {
-          this.todosPokemons = response.data;
-          this.pokemonsFiltrados = response.data;
-          this.totalRegistros = response.data.length;
+        next: lista => {
+          this.todosPokemons = lista;
+          this.pokemonsFiltrados = lista;
+          this.totalRegistros = lista.length;
 
           this.atualizarPagina();
         },
@@ -150,21 +150,31 @@ export class Pokemon implements OnInit {
 
   filtrar(): void {
     this.pageIndex = 0;
+    if (this.paginator) this.paginator.pageIndex = 0;
 
     const nomeFiltro = this.filtroNome.toLowerCase().trim();
-    const tipoFiltro = this.filtroTipo.toLowerCase().trim();
     const geracaoFiltro = this.filtroGeracao.toLowerCase().trim();
+    const tipoFiltro = this.filtroTipo.toLowerCase().trim();
 
-    this.pokemonsFiltrados = this.todosPokemons.filter(pokemon => {
-      const nomeMatch = !nomeFiltro || pokemon.nome.toLowerCase().includes(nomeFiltro);
-      const tipoMatch = !tipoFiltro || pokemon.tipo.toLowerCase().includes(tipoFiltro);
-      const geracaoMatch = !geracaoFiltro || pokemon.geracao.toLowerCase() === geracaoFiltro;
-      return nomeMatch && tipoMatch && geracaoMatch;
-    });
+    const aplicar = (nomesTipo?: Set<string>) => {
+      this.pokemonsFiltrados = this.todosPokemons.filter(pokemon => {
+        const nomeMatch = !nomeFiltro || pokemon.nome.toLowerCase().includes(nomeFiltro);
+        const geracaoMatch = !geracaoFiltro || pokemon.geracao.toLowerCase() === geracaoFiltro;
+        const tipoMatch = !nomesTipo || nomesTipo.has(pokemon.nome);
+        return nomeMatch && geracaoMatch && tipoMatch;
+      });
 
-    this.totalRegistros = this.pokemonsFiltrados.length;
+      this.totalRegistros = this.pokemonsFiltrados.length;
+      this.atualizarPagina();
+      this.cdr.detectChanges();
+    };
 
-    this.atualizarPagina();
+    if (tipoFiltro) {
+      // filtro de tipo resolvido por 1 requisição no /type (cacheada)
+      this.pokemonService.getNomesPorTipo(tipoFiltro).subscribe(nomes => aplicar(nomes));
+    } else {
+      aplicar();
+    }
   }
 
 
@@ -326,6 +336,23 @@ export class Pokemon implements OnInit {
     const inicio = this.pageIndex * this.pageSize;
     const fim = inicio + this.pageSize;
 
-    this.dataSource.data = this.pokemonsFiltrados.slice(inicio, fim);
+    const pagina = this.pokemonsFiltrados.slice(inicio, fim);
+    this.dataSource.data = pagina;
+
+    this.enriquecerVisiveis(pagina);
+  }
+
+  // Busca altura/tipo apenas das linhas visíveis (com cache no serviço)
+  private enriquecerVisiveis(pagina: PokemonTabela[]): void {
+    pagina.forEach(row => {
+      if (row.enriquecido) return;
+
+      this.pokemonService.getDetalheTabela(row.pokedex).subscribe(det => {
+        row.height = det.height;
+        row.tipo = det.tipo;
+        row.enriquecido = true;
+        this.cdr.detectChanges();
+      });
+    });
   }
 }

@@ -21,6 +21,7 @@
 
     <div class="pokemon-card-container">
       <mat-card
+      [class.oculto]="!cardPronto"
       [ngClass]="[
         'pokemon-card',
         pokemonEditado.types?.[0]?.type?.name || 'normal',
@@ -39,9 +40,11 @@
         </div>
 
         <div class="image-section">
-          <img class="main-image" 
-               [src]="pokemonEditado.sprites?.other?.['official-artwork']?.front_default || 'assets/imagens/Erro.PNG'" 
-               [alt]="pokemonEditado.name">
+          <img class="main-image"
+               [src]="pokemonEditado.sprites?.other?.['official-artwork']?.front_default || 'assets/imagens/Erro.PNG'"
+               [alt]="pokemonEditado.name"
+               (load)="onImagemPrincipalCarregada()"
+               (error)="onImagemPrincipalCarregada()">
 
           <img class="shiny-image" 
                *ngIf="pokemonEditado.sprites?.other?.['official-artwork']?.front_shiny"
@@ -110,13 +113,24 @@
             </div>
           </div>
         </div>
-       <div
-          class="evolution-skeleton"
-          *ngIf="showSkeleton"
-          [class.fade-out]="isRevealing">
-        </div>
-
       </mat-card>
+
+      <div class="card-skeleton" *ngIf="!cardPronto" aria-hidden="true">
+        <div class="sk-row">
+          <span class="sk sk-name"></span>
+          <span class="sk sk-num"></span>
+        </div>
+        <div class="sk sk-img"></div>
+        <div class="sk sk-line"></div>
+        <div class="sk sk-line short"></div>
+        <div class="sk sk-line"></div>
+        <div class="sk-actions">
+          <span class="sk sk-btn"></span>
+          <span class="sk sk-btn round"></span>
+          <span class="sk sk-btn"></span>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

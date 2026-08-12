@@ -7,6 +7,7 @@ $bubble-size: 65px;
 $expanded-width: 220px;
 
 $menu-dark: #0C120A; // tom mais escuro para diferenciar o menu na seção dark
+$menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
 
 .menu-topo {
   width: 100%;
@@ -19,7 +20,13 @@ $menu-dark: #0C120A; // tom mais escuro para diferenciar o menu na seção dark
   display: flex;
   align-items: center;
   padding-left: 20px;
-  transition: background-color 0.4s ease;
+  transition: background-color 0.9s ease, transform 0.35s ease, opacity 0.35s ease;
+
+  &.escondido {
+    transform: translateY(-120%);
+    opacity: 0;
+    pointer-events: none;
+  }
 
   &.menu-escuro {
     background-color: $menu-dark;
@@ -37,6 +44,24 @@ $menu-dark: #0C120A; // tom mais escuro para diferenciar o menu na seção dark
 
     .bubble:hover {
       background: lighten($menu-dark, 10%);
+    }
+  }
+
+  // blood moon: acompanha o card do perfil centralizado (precede o menu-escuro)
+  &.blood-moon {
+    background-color: $menu-blood;
+
+    .cd-background {
+      background: radial-gradient(circle, $primary-light 0%, $menu-blood 70%);
+    }
+
+    .bubble {
+      background: $menu-blood;
+      border-color: $menu-blood;
+    }
+
+    .bubble:hover {
+      background: lighten($menu-blood, 12%);
     }
   }
 }

@@ -115,6 +115,35 @@ $navy2: #1084d0;
   box-shadow: 0 0 6px #38d038;
 }
 
+.crt-bezel .led.led-off {
+  background: radial-gradient(circle at 35% 35%, #7a7a7a, #333);
+  box-shadow: none;
+}
+
+.bezel-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crt-btn {
+  font-family: 'Krona One', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #4d4636;
+  background: #cfc9b7;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 8px;
+  cursor: pointer;
+  box-shadow: inset -1px -1px rgba(0, 0, 0, 0.35), inset 1px 1px #fff;
+}
+
+.crt-btn.off {
+  color: #8a8470;
+  box-shadow: inset 1px 1px rgba(0, 0, 0, 0.35), inset -1px -1px #fff;
+}
+
 .crt-stand {
   position: relative;
   z-index: 0;
@@ -189,16 +218,26 @@ $navy2: #1084d0;
   inset: 0;
 }
 
-.ico {
+.icons {
   position: absolute;
+  top: 14px;
   left: 8px;
-  width: 94px;
+  bottom: 44px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 14px 8px;
+}
+
+.ico {
+  width: 84px;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
   color: #fff;
-  z-index: 2;
 }
 
 .ico .material-icons {
@@ -315,13 +354,45 @@ $navy2: #1084d0;
   color: #222;
 }
 
+.win-note { width: 264px; }
+
+/* ===== JANELAS EMBUTIDAS (perfil / contato) ===== */
+
+/* Sobre mim = janela grande (~95% da tela do PC), estilo app */
+.win-perfil {
+  left: 2.5%;
+  top: 12px;
+  width: 95%;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+}
+.win-perfil .tb { flex: 0 0 auto; }
+
+.win-contato { width: min(470px, 84%); }
+
+.embed {
+  margin: 6px;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+  background: #0b0a08;
+}
+
+.win-perfil .embed-perfil {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .note-body {
   padding: 8px 9px;
-  min-height: 92px;
+  min-height: 80px;
+  max-height: 220px;
+  overflow-y: auto;
   background: #fff;
   font-size: 12px;
   line-height: 1.55;
-  white-space: pre-wrap;
+  text-align: justify;
   box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
 }
 

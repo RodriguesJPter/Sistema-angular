@@ -1,0 +1,47 @@
+<section class="perfil-wrap" [class.no-alvo]="noAlvo" [class.embutido]="embutido">
+
+  <h2 class="perfil-title" *ngIf="!embutido">Sobre mim</h2>
+
+  <div class="souls" #card [class.souls-embutido]="embutido">
+
+    <div class="top">
+      <div class="portrait-frame">
+        <div class="portrait" #port (pointerdown)="onDown($event)">
+          <img class="p-img p-real" src="assets/imagens/perfil_real.jpg" alt="John" draggable="false">
+          <img class="p-img p-char" src="assets/imagens/perfil_char.jpg" alt="John — personagem"
+               draggable="false" [style.clip-path]="'inset(0 ' + (100 - pos) + '% 0 0)'">
+
+          <div class="p-handle" [style.left.%]="pos"><span class="grip"></span></div>
+
+          <span class="cap cap-l">personagem</span>
+          <span class="cap cap-r">eu</span>
+          <span class="hint" *ngIf="pos > 85">‹ arraste</span>
+        </div>
+      </div>
+
+      <div class="info">
+        <div class="who">
+          <p class="pname">John</p>
+          <div class="pclass">Front-End Developer</div>
+          <div class="epithet">em busca da experiência perfeita</div>
+        </div>
+
+        <p class="desc" *ngFor="let p of bio">{{ p }}</p>
+      </div>
+    </div>
+
+    <div class="orn"><i></i></div>
+
+    <div class="attrs-h">Atributos</div>
+    <div class="attrs">
+      <div class="attr" *ngFor="let a of atributos">
+        <span class="an">{{ a.n }}</span>
+        <span class="av">{{ a.nivel }}</span>
+        <span class="abar"><i [style.width.%]="a.v"></i></span>
+      </div>
+    </div>
+
+    <div class="foot">— ainda em busca do próximo build —</div>
+
+  </div>
+</section>

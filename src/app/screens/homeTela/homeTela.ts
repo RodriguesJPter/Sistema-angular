@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Angel3dComponent } from '../../components/angel3d/angel3d';
 import { TargetCursorComponent } from '../../components/target-cursor/target-cursor';
 import { SkillsPc } from '../../components/skills-pc/skills-pc';
+import { Intro } from '../../components/intro/intro';
 
 
 @Component({
@@ -13,7 +14,8 @@ import { SkillsPc } from '../../components/skills-pc/skills-pc';
     CommonModule,
     Angel3dComponent,
     TargetCursorComponent,
-    SkillsPc
+    SkillsPc,
+    Intro
   ],
   templateUrl: './homeTela.html',
   styleUrls: ['./homeTela.scss']

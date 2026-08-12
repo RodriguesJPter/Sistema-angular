@@ -7,6 +7,8 @@ import {
   HostListener
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PerfilRpg } from '../perfil-rpg/perfil-rpg';
+import { ContatoTerminal } from '../contato-terminal/contato-terminal';
 
 interface Tech {
   name: string;
@@ -23,7 +25,7 @@ interface Category {
 
 interface Win {
   id: string;
-  kind: 'folder' | 'note' | 'about';
+  kind: 'folder' | 'note' | 'about' | 'perfil' | 'contato';
   title: string;
   icon: string;
   x: number;
@@ -36,7 +38,7 @@ interface Win {
 @Component({
   selector: 'app-skills-pc',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PerfilRpg, ContatoTerminal],
   templateUrl: './skills-pc.html',
   styleUrls: ['./skills-pc.scss']
 })
@@ -50,38 +52,62 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   bootProgress = 0;
   startOpen = false;
   clock = '00:00';
-
-  // Texto provisório — edite aqui para contar como você usa/estudou cada tecnologia.
-  private ph(n: string): string {
-    return `[texto provisório] Aqui vai a explicação de como eu uso e onde estudei/apliquei ${n}. ` +
-           `Edite este texto em skills-pc.ts.`;
-  }
+  crtLigado = true; // efeito de tela (scanlines/vinheta) ligado/desligado
 
   categories: Category[] = [
     {
       id: 'front', name: 'Frontend', icon: 'web', fileIcon: 'code',
-      techs: ['Angular', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Angular Material', 'RxJS', 'APIs REST']
-        .map(n => ({ name: n, desc: this.ph(n) }))
+      techs: [
+        { name: 'Angular', desc: 'Tenho experiência prática no desenvolvimento de aplicações web utilizando Angular, trabalhando na criação de componentes, telas, serviços, rotas, formulários e integração com APIs REST. Também trabalhei com autenticação utilizando Keycloak, componentes do Angular Material, tratamento de dados assíncronos e organização da aplicação por funcionalidades.' },
+        { name: 'TypeScript', desc: 'Utilizo TypeScript no desenvolvimento de aplicações Angular e React Native, trabalhando com tipagem de dados, interfaces, classes, enums, serviços e organização de modelos utilizados na comunicação com APIs. Tenho experiência com tipagem de respostas HTTP e estruturação de objetos utilizados pela aplicação.' },
+        { name: 'JavaScript', desc: 'Possuo conhecimento e experiência prática com JavaScript aplicado ao desenvolvimento frontend e mobile. Utilizo conceitos da linguagem para manipulação de dados, funções, objetos, arrays, programação assíncrona e integração com diferentes bibliotecas e frameworks.' },
+        { name: 'HTML5', desc: 'Tenho experiência na construção de interfaces utilizando HTML5, estruturando páginas e componentes de acordo com suas responsabilidades e necessidades da aplicação. Trabalho com formulários, inputs, elementos semânticos e integração com componentes do Angular.' },
+        { name: 'CSS3', desc: 'Tenho experiência na estilização e construção de interfaces utilizando CSS3, trabalhando com layouts, responsividade, posicionamento, animações, transições e personalização visual dos componentes. Também já trabalhei com interfaces mais personalizadas, indo além da utilização de componentes prontos.' },
+        { name: 'Angular Material', desc: 'Tenho experiência utilizando Angular Material para construção de interfaces, trabalhando com componentes como tabelas, formulários, botões, diálogos, menus e outros elementos da biblioteca. Também realizei personalizações para adaptar os componentes ao design das aplicações.' },
+        { name: 'RxJS', desc: 'Utilizo RxJS principalmente dentro do ecossistema Angular para trabalhar com operações assíncronas e observables. Tenho experiência com o tratamento de respostas de APIs, transformação de dados e gerenciamento do fluxo de informações entre serviços e componentes.' },
+        { name: 'APIs REST', desc: 'Tenho experiência integrando aplicações frontend e mobile com APIs REST, realizando operações como GET, POST, PUT e outras requisições HTTP. Também trabalhei com tratamento de respostas, erros, paginação, autenticação por token e envio de dados para o backend.' }
+      ]
     },
     {
       id: 'mobile', name: 'Mobile', icon: 'smartphone', fileIcon: 'phone_iphone',
-      techs: ['React Native', 'Expo', 'React Native Paper', 'WebView', 'AsyncStorage', 'SecureStore']
-        .map(n => ({ name: n, desc: this.ph(n) }))
+      techs: [
+        { name: 'React Native', desc: 'Tenho experiência prática no desenvolvimento de aplicações mobile utilizando React Native, criando telas, componentes reutilizáveis, navegação e integração com APIs. Trabalhei também com fluxos de autenticação, armazenamento de tokens, validações e funcionalidades específicas para dispositivos móveis.' },
+        { name: 'Expo', desc: 'Utilizei Expo como ambiente de desenvolvimento para aplicações React Native, trabalhando com execução do projeto, integração de recursos nativos e desenvolvimento durante as etapas de construção e testes da aplicação mobile.' },
+        { name: 'React Native Paper', desc: 'Utilizei React Native Paper para construção da interface das aplicações mobile, trabalhando com componentes como botões, inputs, modais e outros elementos de UI, além de realizar adaptações conforme a necessidade do projeto.' },
+        { name: 'WebView', desc: 'Tenho experiência utilizando WebView em aplicações React Native para incorporar conteúdos web dentro da aplicação mobile e realizar a integração entre a aplicação nativa e páginas web.' },
+        { name: 'AsyncStorage', desc: 'Utilizei AsyncStorage em aplicações React Native para armazenamento local de informações que precisam permanecer disponíveis entre diferentes sessões da aplicação.' },
+        { name: 'SecureStore', desc: 'Tenho experiência utilizando SecureStore para armazenamento de informações sensíveis no ambiente mobile, principalmente dados relacionados ao processo de autenticação, como tokens de acesso e refresh tokens.' }
+      ]
     },
     {
       id: 'back', name: 'Backend', icon: 'dns', fileIcon: 'terminal',
-      techs: ['Python', 'FastAPI', 'APIs REST', 'CRUD', 'Pydantic', 'Router / Service / Repository', 'Validação de dados']
-        .map(n => ({ name: n, desc: this.ph(n) }))
+      techs: [
+        { name: 'Python', desc: 'Atualmente venho aprofundando meus conhecimentos em Python com foco no desenvolvimento backend. Durante meus estudos, desenvolvi uma API utilizando FastAPI, trabalhando com CRUD, validações, organização em camadas e integração com banco de dados.' },
+        { name: 'FastAPI', desc: 'Tenho experiência prática desenvolvendo APIs REST com FastAPI. Criei endpoints para operações de CRUD, utilizei schemas com Pydantic, organizei a aplicação utilizando Router, Service e Repository e realizei testes dos endpoints utilizando Postman.' },
+        { name: 'APIs REST', desc: 'Tenho experiência tanto consumindo quanto desenvolvendo APIs REST. No frontend e mobile, trabalhei com integração e consumo de endpoints, enquanto nos estudos de backend desenvolvi APIs próprias utilizando Python e FastAPI.' },
+        { name: 'CRUD', desc: 'Tenho experiência implementando operações de CRUD, trabalhando com criação, consulta, atualização e exclusão de dados. Também trabalhei com validações de regras de negócio e tratamento de diferentes respostas HTTP.' },
+        { name: 'Pydantic', desc: 'Utilizei Pydantic no desenvolvimento de APIs com FastAPI para criação de schemas, definição da estrutura dos dados e validação das informações recebidas e retornadas pela API.' },
+        { name: 'Router / Service / Repository', desc: 'Durante meus estudos de backend, implementei uma estrutura dividindo as responsabilidades da aplicação entre Router, Service e Repository. O Router é responsável pela entrada das requisições, o Service concentra as regras de negócio e o Repository fica responsável pelo acesso e manipulação dos dados.' },
+        { name: 'Validação de dados', desc: 'Tenho experiência trabalhando com validações tanto no frontend quanto no backend. Durante meus estudos com FastAPI, passei a concentrar as validações relacionadas às regras de negócio na camada Service, além das validações estruturais realizadas através do Pydantic.' }
+      ]
     },
     {
       id: 'db', name: 'Banco de dados', icon: 'storage', fileIcon: 'table_chart',
-      techs: ['PostgreSQL', 'SQL', 'Integração app e banco']
-        .map(n => ({ name: n, desc: this.ph(n) }))
+      techs: [
+        { name: 'PostgreSQL', desc: 'Tenho experiência utilizando PostgreSQL em projetos e estudos de backend, trabalhando com a integração entre a API e o banco de dados. Também tive contato com a execução e configuração do PostgreSQL utilizando Docker.' },
+        { name: 'SQL', desc: 'Possuo conhecimento em SQL aplicado à utilização de bancos relacionais, compreendendo conceitos de consultas, inserção, atualização e relacionamento entre dados. Estou aprofundando meus conhecimentos à medida que avanço no desenvolvimento backend.' },
+        { name: 'Integração app e banco', desc: 'Tenho experiência trabalhando com o fluxo de comunicação entre aplicação, API e banco de dados. Durante meus estudos de backend, venho utilizando PostgreSQL para compreender na prática como os dados são persistidos e recuperados pela aplicação.' }
+      ]
     },
     {
       id: 'auth', name: 'Auth e segurança', icon: 'lock', fileIcon: 'vpn_key',
-      techs: ['Keycloak', 'OAuth 2.0', 'OpenID Connect', 'JWT', 'Autenticação e autorização']
-        .map(n => ({ name: n, desc: this.ph(n) }))
+      techs: [
+        { name: 'Keycloak', desc: 'Tenho experiência prática utilizando Keycloak como servidor de identidade para autenticação e autorização de aplicações. Trabalhei com configuração de realms, clients, integração com Angular, proteção de rotas e personalização de telas de login, incluindo configuração de temas e integração com SMTP.' },
+        { name: 'OAuth 2.0', desc: 'Possuo conhecimento prático dos conceitos de OAuth 2.0 através da utilização do Keycloak, compreendendo o papel do provedor de identidade, clientes, tokens e autorização no acesso aos recursos protegidos.' },
+        { name: 'OpenID Connect', desc: 'Tenho conhecimento de OpenID Connect através da integração de aplicações com Keycloak, trabalhando com o protocolo de autenticação baseado em OAuth 2.0 e utilizando informações de identidade fornecidas pelo provedor.' },
+        { name: 'JWT', desc: 'Tenho experiência trabalhando com JWT no contexto de autenticação de aplicações web e mobile. Utilizei tokens para manter o estado de autenticação e realizar requisições autenticadas para APIs protegidas.' },
+        { name: 'Autenticação e autorização', desc: 'Tenho experiência implementando e integrando mecanismos de autenticação e autorização utilizando Keycloak. Já trabalhei com autenticação em aplicações Angular e React Native, armazenamento seguro de tokens e proteção do acesso às funcionalidades da aplicação.' }
+      ]
     }
   ];
 
@@ -215,6 +241,37 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
       id, kind: 'note', title: tech.name + '.txt', icon: 'description',
       x: 210 + n * 24, y: 40 + n * 22, z: ++this.zTop, cat, tech
     });
+  }
+
+  openPerfil(): void {
+    this.startOpen = false;
+    const id = 'perfil';
+    const found = this.windows.find(w => w.id === id);
+    if (found) { this.focus(found); return; }
+
+    const n = this.windows.length;
+    this.windows.push({
+      id, kind: 'perfil', title: 'Sobre mim', icon: 'person',
+      x: 90 + n * 22, y: 16 + n * 18, z: ++this.zTop
+    });
+  }
+
+  openContato(): void {
+    this.startOpen = false;
+    const id = 'contato';
+    const found = this.windows.find(w => w.id === id);
+    if (found) { this.focus(found); return; }
+
+    const n = this.windows.length;
+    this.windows.push({
+      id, kind: 'contato', title: 'Contato', icon: 'mail',
+      x: 150 + n * 22, y: 30 + n * 18, z: ++this.zTop
+    });
+  }
+
+  toggleCrt(ev?: Event): void {
+    ev?.stopPropagation();
+    this.crtLigado = !this.crtLigado;
   }
 
   openAbout(): void {

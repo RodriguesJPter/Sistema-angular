@@ -18,6 +18,11 @@ export class PokemonService {
   private cache = new Map<string, PokemonDetalhado>();
   private evolutionCache = new Map<string, any>();
 
+  // caches da tabela otimizada
+  private listaBase: PokemonTabela[] | null = null;
+  private detalheCache = new Map<number, { height: number; tipo: string }>();
+  private tipoCache = new Map<string, Set<string>>();
+
 
   constructor(private http: HttpClient) {
   this.carregarEdicoesIniciais();
@@ -102,6 +107,71 @@ export class PokemonService {
       );
   }
 
+
+  // ===== TABELA OTIMIZADA =====
+
+  // Sprite deduzido do id — não precisa de requisição de detalhe
+  private spriteUrl(id: number): string {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+  }
+
+  // 1 requisição traz a lista inteira (nome + nº). Cacheada.
+  getListaBase(): Observable<PokemonTabela[]> {
+    if (this.listaBase) {
+      return of(this.listaBase);
+    }
+
+    return this.http
+      .get<{ results: { name: string; url: string }[] }>(
+        `${this.apiUrl}/pokemon?limit=1025&offset=0`
+      )
+      .pipe(
+        map(resp =>
+          resp.results.map((p, i) => {
+            const pokedex = i + 1;
+            return {
+              pokedex,
+              nome: p.name,
+              height: 0,
+              tipo: '',
+              geracao: this.determinarGeracao(pokedex),
+              sprite: this.spriteUrl(pokedex),
+              enriquecido: false
+            } as PokemonTabela;
+          })
+        ),
+        tap(lista => (this.listaBase = lista))
+      );
+  }
+
+  // Detalhe (altura + tipo) só quando a linha aparece. Cacheado por id.
+  getDetalheTabela(pokedex: number): Observable<{ height: number; tipo: string }> {
+    if (this.detalheCache.has(pokedex)) {
+      return of(this.detalheCache.get(pokedex)!);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/pokemon/${pokedex}`).pipe(
+      map(d => ({
+        height: d.height ?? 0,
+        tipo: d.types?.[0]?.type?.name || ''
+      })),
+      tap(v => this.detalheCache.set(pokedex, v)),
+      catchError(() => of({ height: 0, tipo: '' }))
+    );
+  }
+
+  // Nomes de um tipo (1 requisição no /type). Cacheado.
+  getNomesPorTipo(tipo: string): Observable<Set<string>> {
+    if (this.tipoCache.has(tipo)) {
+      return of(this.tipoCache.get(tipo)!);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/type/${tipo}`).pipe(
+      map(d => new Set<string>((d.pokemon || []).map((x: any) => x.pokemon.name))),
+      tap(s => this.tipoCache.set(tipo, s)),
+      catchError(() => of(new Set<string>()))
+    );
+  }
 
   private determinarGeracao(id: number): string {
     if (id <= 151) return 'generation-i';

@@ -10,17 +10,17 @@ import { MusicService } from './services/music.service';
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule, 
-    MenuPrincipal, 
-    MatIconModule, 
-    RouterOutlet, 
+    CommonModule,
+    MenuPrincipal,
+    MatIconModule,
+    RouterOutlet,
   ],
   template: `
   <app-menu-principal *ngIf="showMenu"></app-menu-principal>
-  
+
   <div class="main-content">
     <router-outlet></router-outlet>
-   
+
   </div>
   `,
   styles: [`

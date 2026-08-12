@@ -79,4 +79,5 @@ export interface PokemonTabela {
   tipo: string;
   geracao: string;
   sprite: string;
+  enriquecido?: boolean;
 }

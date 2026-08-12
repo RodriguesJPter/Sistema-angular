@@ -77,7 +77,7 @@ import { ChangeDetectorRef } from '@angular/core';
 
 export class Pokemoninfo implements OnInit {
   isRevealing = false;
-  showSkeleton = false;
+  cardPronto = false;   // vira true quando a imagem principal termina de carregar
   ativar3D = false;
   transformStyle = '';
   pokemonOriginal: any = null; 
@@ -145,8 +145,17 @@ export class Pokemoninfo implements OnInit {
 
   private carregarDados(dados: any): void {
     this.pokemonOriginal = dados;
-    this.pokemonEditado = JSON.parse(JSON.stringify(dados)); 
+    this.pokemonEditado = JSON.parse(JSON.stringify(dados));
     this.isLoading = false;
+    this.cardPronto = false;   // mostra o skeleton até a imagem carregar
+  }
+
+  // chamado quando a imagem principal (arte oficial) termina de carregar
+  onImagemPrincipalCarregada(): void {
+    this.cardPronto = true;
+    this.isEvolving = false;
+    this.isRevealing = false;
+    this.cdr.detectChanges();
   }
 
   private obterDadosLocais(id: string): any {
@@ -237,7 +246,6 @@ mostrarProximaEvolucao() {
   if (!this.pokemonEditado?.species?.url) return;
 
   this.isEvolving = true;
-  this.showSkeleton = true;
 
   this.pokemonService
     .getEvolutionChainFromSpecies(this.pokemonEditado.species.url)
@@ -261,26 +269,13 @@ mostrarProximaEvolucao() {
           .getPokemonComEdicoes(nextId)
           .subscribe({
             next: (nextEvo) => {
-              if (!nextEvo) return;
+              if (!nextEvo) { this.resetEvolutionState(); return; }
 
-           
-              setTimeout(() => {
-
-                this.pokemonEditado = nextEvo;
-
-                
-                this.isRevealing = true;
-
-                this.cdr.detectChanges();  
-
-               
-                setTimeout(() => {
-                  this.showSkeleton = false;
-                  this.isEvolving = false;
-                  this.isRevealing = false;
-                }, 600);
-
-              }, 300); 
+              // troca o pokémon e mostra o skeleton até a nova imagem carregar
+              this.pokemonEditado = nextEvo;
+              this.cardPronto = false;
+              this.isRevealing = true;
+              this.cdr.detectChanges();
             },
             error: () => {
               this.resetEvolutionState();
@@ -288,7 +283,7 @@ mostrarProximaEvolucao() {
           });
 
       } else {
-        this.mensagemSemEvolucao = 
+        this.mensagemSemEvolucao =
           "Este Pokémon não possui mais evoluções!";
         this.resetEvolutionState();
 
@@ -300,10 +295,10 @@ mostrarProximaEvolucao() {
 }
 
 private resetEvolutionState() {
-  this.showSkeleton = false;
+  this.cardPronto = true;
   this.isEvolving = false;
   this.isRevealing = false;
-  this.cdr.detectChanges(); 
+  this.cdr.detectChanges();
 }
 
 private extrairIdDaUrl(url: string): number {

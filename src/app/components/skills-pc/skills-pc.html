@@ -21,20 +21,33 @@
       <!-- DESKTOP -->
       <div class="desktop" *ngIf="powered" (pointerdown)="startOpen = false">
 
-        <div class="ico" *ngFor="let c of categories; let i = index"
-             [style.top.px]="18 + i * 82" (click)="openFolder(c)">
-          <span class="material-icons">{{ c.icon }}</span>
-          <span class="lbl">{{ c.name }}</span>
-        </div>
-
-        <div class="ico" [style.top.px]="18 + categories.length * 82" (click)="openAbout()">
-          <span class="material-icons">menu_book</span>
-          <span class="lbl">Como foi feito</span>
+        <div class="icons">
+          <div class="ico" *ngFor="let c of categories" (click)="openFolder(c)">
+            <span class="material-icons">{{ c.icon }}</span>
+            <span class="lbl">{{ c.name }}</span>
+          </div>
+          <div class="ico" (click)="openPerfil()">
+            <span class="material-icons">person</span>
+            <span class="lbl">Sobre mim</span>
+          </div>
+          <div class="ico" (click)="openContato()">
+            <span class="material-icons">mail</span>
+            <span class="lbl">Contato</span>
+          </div>
+          <div class="ico" (click)="openAbout()">
+            <span class="material-icons">menu_book</span>
+            <span class="lbl">Como foi feito</span>
+          </div>
         </div>
 
         <div class="win" *ngFor="let w of windows; trackBy: trackWin"
              [class.win-about]="w.kind === 'about'"
-             [style.left.px]="w.x" [style.top.px]="w.y" [style.zIndex]="w.z"
+             [class.win-note]="w.kind === 'note'"
+             [class.win-perfil]="w.kind === 'perfil'"
+             [class.win-contato]="w.kind === 'contato'"
+             [style.left.px]="w.kind === 'perfil' ? null : w.x"
+             [style.top.px]="w.kind === 'perfil' ? null : w.y"
+             [style.zIndex]="w.z"
              (pointerdown)="bringToFront(w); $event.stopPropagation()">
 
           <div class="tb" (pointerdown)="startDrag($event, w)">
@@ -68,6 +81,14 @@
             </div>
           </div>
 
+          <div class="embed embed-perfil" *ngIf="w.kind === 'perfil'">
+            <app-perfil-rpg [embutido]="true"></app-perfil-rpg>
+          </div>
+
+          <div class="embed embed-contato" *ngIf="w.kind === 'contato'">
+            <app-contato-terminal [embutido]="true"></app-contato-terminal>
+          </div>
+
         </div>
 
         <div class="startmenu" *ngIf="startOpen" (pointerdown)="$event.stopPropagation()">
@@ -78,9 +99,16 @@
             <span class="material-icons">{{ c.icon }}</span>{{ c.name }}
           </div>
           <div class="sm-sep"></div>
+          <div class="sm-i" (click)="openPerfil()">
+            <span class="material-icons">person</span>Sobre mim
+          </div>
+          <div class="sm-i" (click)="openContato()">
+            <span class="material-icons">mail</span>Contato
+          </div>
           <div class="sm-i" (click)="openAbout()">
             <span class="material-icons">menu_book</span>Como foi feito
           </div>
+          <div class="sm-sep"></div>
           <div class="sm-i" (click)="restart()">
             <span class="material-icons">power_settings_new</span>Reiniciar
           </div>
@@ -101,12 +129,16 @@
 
       </div>
 
-      <div class="scanlines"></div>
+      <div class="scanlines" *ngIf="crtLigado"></div>
     </div>
 
     <div class="crt-bezel">
       <span class="brand">JohnDows 2000</span>
-      <span class="led"></span>
+      <div class="bezel-ctrl">
+        <button class="crt-btn" [class.off]="!crtLigado" (click)="toggleCrt($event)"
+                title="Efeito de tela (CRT)">CRT</button>
+        <span class="led" [class.led-off]="!crtLigado"></span>
+      </div>
     </div>
   </div>
 

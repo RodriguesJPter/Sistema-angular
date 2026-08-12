@@ -17,8 +17,17 @@ html {
 
 
 html, body { height: 100%; }
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
   padding: 0% !important;
+}
+
+/* Fonte Sangar (não está no Google Fonts):
+   coloque o arquivo em src/assets/fonts/ com um destes nomes. */
+@font-face {
+  font-family: 'Sangar';
+  src: url('/assets/fonts/sangar.woff2') format('woff2'),
+       url('/assets/fonts/sangar.ttf') format('truetype');
+  font-display: swap;
 }

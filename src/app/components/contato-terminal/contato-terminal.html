@@ -1,0 +1,29 @@
+<section class="contato-wrap" #root [class.embutido]="embutido">
+  <div class="terminal">
+
+    <div class="term-bar">
+      <span class="tname">C:\johnos&gt; contato --list</span>
+    </div>
+
+    <div class="term-body">
+      <p class="line">
+        <span class="prompt">visitante&#64;johnos:~$</span>
+        <span class="typed">{{ cmd }}</span><span class="cursor" *ngIf="!mostrarResultado">▮</span>
+      </p>
+
+      <div class="result" *ngIf="mostrarResultado">
+        <a class="contato" *ngFor="let c of contatos"
+           [href]="c.href" target="_blank" rel="noopener">
+          <span class="clabel">{{ c.label }}</span>
+          <span class="cval">{{ c.valor }}</span>
+        </a>
+
+        <p class="line end">
+          <span class="prompt">visitante&#64;johnos:~$</span>
+          <span class="cursor">▮</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
