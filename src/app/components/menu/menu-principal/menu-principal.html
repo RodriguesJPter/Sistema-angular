@@ -1,4 +1,4 @@
-<header class="menu-topo">
+<header class="menu-topo" [class.menu-escuro]="menuEscuro">
   <div class="menu-container">
 
     <div class="cd-wrapper">
@@ -10,7 +10,9 @@
           class="metaball-canvas"
           [ballCount]="30"
           [animationSize]="140"
-          [color]="'#1A2517'"
+          [color]="metaballColor"
+          [dripOpen]="menuAberto"
+          [dripTargets]="dripTargets"
           [enableTransparency]="true">
         </app-metaballs>
       </div>

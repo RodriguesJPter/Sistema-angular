@@ -25,7 +25,7 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
   @Input() activeArea: string = '.dark-section';
   @Input() dotOffsetX: number = 0;
   @Input() dotOffsetY: number = 0;
-  @Input() focusOffsetY: number = -6;
+  @Input() focusOffsetY: number = 0;
 
   @ViewChild('cursor') cursorRef!: ElementRef<HTMLDivElement>;
   @ViewChild('dot') dotRef!: ElementRef<HTMLDivElement>;
@@ -53,6 +53,7 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
       yPercent: -50,
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
+      transformOrigin: '50% 50%',
       opacity: 0
     });
 
@@ -111,7 +112,22 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
     this.tickerFn = () => {
 
-      if (!this.targetCornerPositions || !this.activeTarget) return;
+      if (!this.activeTarget) return;
+
+      // recalcula o retângulo do card a cada frame para os cantos
+      // grudarem na borda mesmo com a animação de hover (translateY)
+      const rect = this.activeTarget.getBoundingClientRect();
+
+      const bw = 3;               // pequena folga em relação à borda
+      const s = this.cornerSize;
+      const oy = this.focusOffsetY;
+
+      const abs = [
+        { x: rect.left - bw,      y: rect.top - bw + oy },
+        { x: rect.right + bw - s, y: rect.top - bw + oy },
+        { x: rect.right + bw - s, y: rect.bottom + bw - s + oy },
+        { x: rect.left - bw,      y: rect.bottom + bw - s + oy }
+      ];
 
       const cursorX =
         gsap.getProperty(this.cursorRef.nativeElement, 'x') as number;
@@ -120,18 +136,10 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
         gsap.getProperty(this.cursorRef.nativeElement, 'y') as number;
 
       this.corners.forEach((corner, i) => {
-
-        const targetX =
-          this.targetCornerPositions![i].x - cursorX;
-
-        const targetY =
-          this.targetCornerPositions![i].y - cursorY;
-
         gsap.set(corner, {
-          x: targetX,
-          y: targetY
+          x: abs[i].x - cursorX,
+          y: abs[i].y - cursorY
         });
-
       });
     };
 
@@ -147,18 +155,6 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
       this.spinTl.pause();
       gsap.set(this.cursorRef.nativeElement, { rotation: 0 });
-
-      const rect = target.getBoundingClientRect();
-
-      const borderWidth = 3;
-      const cornerSize = 12;
-
-      this.targetCornerPositions = [
-        { x: rect.left - borderWidth, y: rect.top - borderWidth + this.focusOffsetY },
-        { x: rect.right + borderWidth - cornerSize, y: rect.top - borderWidth + this.focusOffsetY },
-        { x: rect.right + borderWidth - cornerSize, y: rect.bottom + borderWidth - cornerSize + this.focusOffsetY },
-        { x: rect.left - borderWidth, y: rect.bottom + borderWidth - cornerSize + this.focusOffsetY }
-      ];
 
       gsap.ticker.add(this.tickerFn);
 
@@ -183,14 +179,7 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
     gsap.ticker.remove(this.tickerFn);
     gsap.set(this.activeStrength, { current: 0 });
 
-    const cornerSize = 12;
-
-    const positions = [
-      { x: -cornerSize * 1.5, y: -cornerSize * 1.5 },
-      { x: cornerSize * 0.5, y: -cornerSize * 1.5 },
-      { x: cornerSize * 0.5, y: cornerSize * 0.5 },
-      { x: -cornerSize * 1.5, y: cornerSize * 0.5 }
-    ];
+    const positions = this.idleCornerPositions();
 
     this.corners.forEach((corner, index) => {
       gsap.to(corner, {
@@ -249,16 +238,25 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
   };
 
+  // Tamanho real do quadradinho de canto (bate com o .scss: width/height 14px)
+  private readonly cornerSize = 14;
+
+  // Posições de repouso SIMÉTRICas em torno de (0,0),
+  // para que o cursor gire centralizado
+  private idleCornerPositions() {
+    const spread = 16; // distância do centro até a borda externa do canto
+    const s = this.cornerSize;
+    return [
+      { x: -spread,     y: -spread },      // topo-esquerda
+      { x: spread - s,  y: -spread },      // topo-direita
+      { x: spread - s,  y: spread - s },   // baixo-direita
+      { x: -spread,     y: spread - s }    // baixo-esquerda
+    ];
+  }
+
   private setInitialCornerPosition() {
 
-    const cornerSize = 12;
-
-    const positions = [
-      { x: -cornerSize * 1.5, y: -cornerSize * 1.5 },
-      { x: cornerSize * 0.5, y: -cornerSize * 1.5 },
-      { x: cornerSize * 0.5, y: cornerSize * 0.5 },
-      { x: -cornerSize * 1.5, y: cornerSize * 0.5 }
-    ];
+    const positions = this.idleCornerPositions();
 
     this.corners.forEach((corner, index) => {
       gsap.set(corner, {

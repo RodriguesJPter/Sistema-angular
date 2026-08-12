@@ -6,6 +6,8 @@ $cd-size: 150px;
 $bubble-size: 65px;
 $expanded-width: 220px;
 
+$menu-dark: #0C120A; // tom mais escuro para diferenciar o menu na seção dark
+
 .menu-topo {
   width: 100%;
   background-color: $primary-dark;
@@ -17,6 +19,26 @@ $expanded-width: 220px;
   display: flex;
   align-items: center;
   padding-left: 20px;
+  transition: background-color 0.4s ease;
+
+  &.menu-escuro {
+    background-color: $menu-dark;
+
+    // fundo atrás do CD
+    .cd-background {
+      background: radial-gradient(circle, $primary-light 0%, $menu-dark 70%);
+    }
+
+    // opções do menu (bubbles)
+    .bubble {
+      background: $menu-dark;
+      border-color: $menu-dark;
+    }
+
+    .bubble:hover {
+      background: lighten($menu-dark, 10%);
+    }
+  }
 }
 
 .menu-container {
@@ -63,6 +85,7 @@ $expanded-width: 220px;
   border-radius: 50%;
   top: -12px;
   left: -12px;
+  transition: background 0.4s ease;
 }
 
 .cd-image {

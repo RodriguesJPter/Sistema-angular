@@ -50,23 +50,10 @@ export class App {
 
     this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe((event: any) => {
-
-      const url = event.urlAfterRedirects;
-
-      // esconde menu na rota start
-      this.showMenu = !url.includes('start');
-
-      // START → sem música
-      if (url.includes('start')) {
-        this.music.pause();
-      } 
-      
-      // qualquer outra tela → música toca
-      else {
-        this.music.resume();
-      }
-
+    .subscribe(() => {
+      // menu sempre visível e música tocando nas telas
+      this.showMenu = true;
+      this.music.resume();
     });
   }
 }

@@ -3,7 +3,9 @@ import {
   Component,
   ElementRef,
   Input,
+  OnChanges,
   OnDestroy,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { Renderer, Program, Mesh, Triangle, Transform, Vec3, Camera } from 'ogl';
@@ -24,7 +26,14 @@ import { Renderer, Program, Mesh, Triangle, Transform, Vec3, Camera } from 'ogl'
     }
   `]
 })
-export class MetaballsComponent implements AfterViewInit, OnDestroy {
+export class MetaballsComponent implements AfterViewInit, OnChanges, OnDestroy {
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // atualiza a cor do shader em runtime (ex.: menu escurece no scroll)
+    if (changes['color'] && this.program) {
+      this.program.uniforms['iColor'].value = this.parseHexColor(this.color);
+    }
+  }
 
   @ViewChild('container', { static: true })
   containerRef!: ElementRef<HTMLDivElement>;
@@ -37,6 +46,14 @@ export class MetaballsComponent implements AfterViewInit, OnDestroy {
   @Input() clumpFactor: number = 1;
   @Input() cursorBallSize: number = 3;
   @Input() enableTransparency: boolean = false;
+
+  // ===== Efeito "gota" (bubbles se soltando do líquido) =====
+  // dripOpen: quando true, as gotas saem do centro até os alvos
+  @Input() dripOpen: boolean = false;
+  // dripTargets: posição final de cada gota em coordenadas de mundo do shader
+  @Input() dripTargets: { x: number; y: number; size: number }[] = [];
+
+  private dripProgress = 0;
 
   private renderer!: Renderer;
   private program!: Program;
@@ -210,6 +227,30 @@ export class MetaballsComponent implements AfterViewInit, OnDestroy {
         const y = Math.sin(angle) * 6.0 * this.clumpFactor;
         metaBallsUniform[i].set(x, y, 2.5);
       }
+
+      // ===== gotas que se soltam do líquido =====
+      const alvo = this.dripOpen ? 1 : 0;
+      this.dripProgress += (alvo - this.dripProgress) * 0.08;
+
+      const drips = this.dripTargets || [];
+      const n = Math.min(drips.length, 50 - this.ballCount);
+
+      for (let j = 0; j < n; j++) {
+        const d = drips[j];
+
+        // leve atraso entre as gotas para parecer orgânico
+        const raw = (this.dripProgress - j * 0.05) / (1 - j * 0.05);
+        const p = Math.min(1, Math.max(0, raw));
+        const e = p * p * (3 - 2 * p); // smoothstep
+
+        // pequena pulsação na gota já separada
+        const wobble = 1 + 0.06 * Math.sin(elapsed * 3 + j * 1.7);
+
+        const idx = this.ballCount + j;
+        metaBallsUniform[idx].set(d.x * e, d.y * e, (d.size ?? 2.0) * wobble);
+      }
+
+      this.program.uniforms['iBallCount'].value = this.ballCount + n;
 
       this.renderer.render({ scene, camera });
     };

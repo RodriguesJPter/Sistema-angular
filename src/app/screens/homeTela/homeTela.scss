@@ -45,6 +45,17 @@ $primary-light: #ACC8A2;
   margin: 0;
 }
 
+.titulo-tech .sub-tech {
+  margin: 10px auto 0;
+  max-width: 320px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  color: rgba($primary-light, 0.7);
+  text-transform: none;
+}
+
 
 .hero {
   text-align: center;
@@ -169,11 +180,11 @@ $primary-light: #ACC8A2;
 
 .tech-card {
   position: absolute;
-  width: 260px;
-  padding: 22px;
-  border-radius: 18px;
+  width: 200px;
+  padding: 16px 18px;
+  border-radius: 14px;
 
-  background: 
+  background:
     radial-gradient(
       circle at bottom left,
       darken($primary-light, 15%) 0%,
@@ -185,12 +196,23 @@ $primary-light: #ACC8A2;
 
   border: 2px solid darken($primary-light, 12%);
 
-  box-shadow: 
-    0 12px 30px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35);
 
-  transition: 
+  transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+
+  p {
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 0;
+  }
 }
 
 .tech-card:hover {
@@ -198,24 +220,26 @@ $primary-light: #ACC8A2;
   box-shadow: 0 15px 40px rgba(0,0,0,0.5);
 }
 
+/* curva suave e contínua: varre de cima-direita para baixo-esquerda,
+   com curvatura crescente (deltas -3, -6, -9) */
 .tech-1 {
-  top: 14%;
-  left: 51%;
+  top: 15%;
+  left: 58%;
 }
 
 .tech-2 {
-  top: 35%;
-  right: 22%;
+  top: 33%;
+  left: 55%;
 }
 
 .tech-3 {
-  bottom: 27%;
-  left: 57%;
+  top: 51%;
+  left: 49%;
 }
 
 .tech-4 {
-  bottom: 6%;
-  right: 38%;
+  top: 69%;
+  left: 40%;
 }
 
 .componente-3d {
@@ -229,7 +253,16 @@ $primary-light: #ACC8A2;
   margin-right: 65%;
 }
 
-@media (max-width: 768px) {
+/* Telas médias: cards um pouco menores e reposicionados */
+@media (max-width: 1100px) {
+  .tech-card {
+    width: 180px;
+    padding: 14px 16px;
+  }
+}
+
+/* Telas pequenas: layout flutuante vira coluna organizada */
+@media (max-width: 900px) {
 
   .home {
     padding-top: 100px;
@@ -241,5 +274,34 @@ $primary-light: #ACC8A2;
 
   .content-box {
     padding: 40px 25px;
+  }
+
+  .dark-section {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 100px 20px 50px;
+    min-height: 0;
+    gap: 18px;
+  }
+
+  .titulo-tech {
+    position: static;
+    transform: none;
+    margin-bottom: 10px;
+  }
+
+  .componente-3d {
+    width: 100%;
+    max-width: 320px;
+    height: 340px;
+    margin: 0 auto 10px;
+  }
+
+  .tech-card {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: 380px;
   }
 }

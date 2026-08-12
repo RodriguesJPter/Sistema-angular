@@ -1,0 +1,115 @@
+<section #root class="pc-wrap">
+
+  <div class="pc-heading">
+    <h2>Minhas habilidades</h2>
+    <p>clique nos ícones para explorar — arraste as janelas e abra o menu iniciar</p>
+  </div>
+
+  <div class="crt">
+    <div class="crt-screen" #screen>
+
+      <!-- BOOT -->
+      <div class="boot" *ngIf="booting">
+        <div class="boot-logo">
+          <img class="winlogo big" src="assets/imagens/logo_green.svg" alt="" aria-hidden="true" />
+          <span>JohnDows 2000</span>
+        </div>
+        <div class="boot-bar"><div class="boot-fill" [style.width.%]="bootProgress"></div></div>
+        <div class="boot-txt">iniciando…</div>
+      </div>
+
+      <!-- DESKTOP -->
+      <div class="desktop" *ngIf="powered" (pointerdown)="startOpen = false">
+
+        <div class="ico" *ngFor="let c of categories; let i = index"
+             [style.top.px]="18 + i * 82" (click)="openFolder(c)">
+          <span class="material-icons">{{ c.icon }}</span>
+          <span class="lbl">{{ c.name }}</span>
+        </div>
+
+        <div class="ico" [style.top.px]="18 + categories.length * 82" (click)="openAbout()">
+          <span class="material-icons">menu_book</span>
+          <span class="lbl">Como foi feito</span>
+        </div>
+
+        <div class="win" *ngFor="let w of windows; trackBy: trackWin"
+             [class.win-about]="w.kind === 'about'"
+             [style.left.px]="w.x" [style.top.px]="w.y" [style.zIndex]="w.z"
+             (pointerdown)="bringToFront(w); $event.stopPropagation()">
+
+          <div class="tb" (pointerdown)="startDrag($event, w)">
+            <span class="material-icons tb-ic">{{ w.icon }}</span>
+            <b>{{ w.title }}</b>
+            <button class="tb-btn" (click)="close(w.id, $event)" aria-label="Fechar">✕</button>
+          </div>
+
+          <ng-container *ngIf="w.kind === 'folder'">
+            <div class="body">
+              <div class="row" *ngFor="let t of w.cat!.techs; trackBy: trackTech"
+                   (click)="openNote(w.cat!, t)">
+                <span class="material-icons">{{ w.cat!.fileIcon }}</span>
+                <span>{{ t.name }}</span>
+              </div>
+            </div>
+            <div class="stat">{{ w.cat!.techs.length }} objeto(s)</div>
+          </ng-container>
+
+          <div class="note" *ngIf="w.kind === 'note'">
+            <div class="note-menu">arquivo&nbsp;&nbsp;editar&nbsp;&nbsp;formatar&nbsp;&nbsp;ajuda</div>
+            <div class="note-body">{{ w.tech!.desc }}</div>
+          </div>
+
+          <div class="about" *ngIf="w.kind === 'about'">
+            <div class="about-body">
+              <div class="about-sec" *ngFor="let s of aboutSections">
+                <h4>{{ s.h }}</h4>
+                <p>{{ s.p }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="startmenu" *ngIf="startOpen" (pointerdown)="$event.stopPropagation()">
+          <div class="sm-head">
+            <img class="winlogo" src="assets/imagens/logo_green.svg" alt="" aria-hidden="true" />JohnDows 2000
+          </div>
+          <div class="sm-i" *ngFor="let c of categories" (click)="openFolder(c)">
+            <span class="material-icons">{{ c.icon }}</span>{{ c.name }}
+          </div>
+          <div class="sm-sep"></div>
+          <div class="sm-i" (click)="openAbout()">
+            <span class="material-icons">menu_book</span>Como foi feito
+          </div>
+          <div class="sm-i" (click)="restart()">
+            <span class="material-icons">power_settings_new</span>Reiniciar
+          </div>
+        </div>
+
+        <div class="taskbar" (pointerdown)="$event.stopPropagation()">
+          <button class="start" [class.on]="startOpen" (click)="toggleStart()">
+            <img class="winlogo" src="assets/imagens/logo_ink.svg" alt="" aria-hidden="true" />Iniciar
+          </button>
+          <div class="tasks">
+            <button class="task" *ngFor="let w of windows; trackBy: trackWin" (click)="bringToFront(w)">
+              <span class="material-icons">{{ w.icon }}</span>
+              <span class="t-lbl">{{ w.title }}</span>
+            </button>
+          </div>
+          <div class="tbclock">{{ clock }}</div>
+        </div>
+
+      </div>
+
+      <div class="scanlines"></div>
+    </div>
+
+    <div class="crt-bezel">
+      <span class="brand">JohnDows 2000</span>
+      <span class="led"></span>
+    </div>
+  </div>
+
+  <div class="crt-stand"></div>
+
+</section>
