@@ -1,13 +1,11 @@
 $primary-dark: #1A2517;
 $primary-light: #ACC8A2;
 
-
 :host {
   display: block;
   width: 100%;
   font-family: 'Krona One', sans-serif;
 }
-
 
 .coin-wrapper {
   width: 100%;
@@ -15,12 +13,12 @@ $primary-light: #ACC8A2;
 }
 .home {
   min-height: 100vh;
-  padding-top: 120px; 
+  padding-top: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: $primary-light;
-  
+
 }
 
 .titulo-tech {
@@ -31,7 +29,7 @@ $primary-light: #ACC8A2;
   transform: translateX(-50%);
 
   text-align: center;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .titulo-tech h1 {
@@ -55,7 +53,6 @@ $primary-light: #ACC8A2;
   color: rgba($primary-light, 0.7);
   text-transform: none;
 }
-
 
 .hero {
   text-align: center;
@@ -220,8 +217,6 @@ $primary-light: #ACC8A2;
   box-shadow: 0 15px 40px rgba(0,0,0,0.5);
 }
 
-/* curva suave e contínua: varre de cima-direita para baixo-esquerda,
-   com curvatura crescente (deltas -3, -6, -9) */
 .tech-1 {
   top: 15%;
   left: 58%;
@@ -253,7 +248,6 @@ $primary-light: #ACC8A2;
   margin-right: 65%;
 }
 
-/* Telas médias: cards um pouco menores e reposicionados */
 @media (max-width: 1100px) {
   .tech-card {
     width: 180px;
@@ -261,7 +255,6 @@ $primary-light: #ACC8A2;
   }
 }
 
-/* Telas pequenas: layout flutuante vira coluna organizada */
 @media (max-width: 900px) {
 
   .home {

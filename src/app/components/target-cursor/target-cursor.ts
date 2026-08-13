@@ -71,9 +71,8 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
     if (activeSection.matches(':hover')) {
       this.enableCursor();
     }
-    
-    window.addEventListener('scroll', this.handleScroll, { passive: true });
 
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
 
   }
 
@@ -114,11 +113,9 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
       if (!this.activeTarget) return;
 
-      // recalcula o retângulo do card a cada frame para os cantos
-      // grudarem na borda mesmo com a animação de hover (translateY)
       const rect = this.activeTarget.getBoundingClientRect();
 
-      const bw = 3;               // pequena folga em relação à borda
+      const bw = 3;
       const s = this.cornerSize;
       const oy = this.focusOffsetY;
 
@@ -238,19 +235,16 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
   };
 
-  // Tamanho real do quadradinho de canto (bate com o .scss: width/height 14px)
   private readonly cornerSize = 14;
 
-  // Posições de repouso SIMÉTRICas em torno de (0,0),
-  // para que o cursor gire centralizado
   private idleCornerPositions() {
-    const spread = 16; // distância do centro até a borda externa do canto
+    const spread = 16;
     const s = this.cornerSize;
     return [
-      { x: -spread,     y: -spread },      // topo-esquerda
-      { x: spread - s,  y: -spread },      // topo-direita
-      { x: spread - s,  y: spread - s },   // baixo-direita
-      { x: -spread,     y: spread - s }    // baixo-esquerda
+      { x: -spread,     y: -spread },
+      { x: spread - s,  y: -spread },
+      { x: spread - s,  y: spread - s },
+      { x: -spread,     y: spread - s }
     ];
   }
 

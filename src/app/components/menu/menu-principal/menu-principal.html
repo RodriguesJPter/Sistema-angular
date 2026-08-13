@@ -3,8 +3,7 @@
 
     <div class="cd-wrapper">
       <app-music-player class="menu-music-player"></app-music-player>
-      
-      <!-- METABALL GIGANTE -->
+
       <div class="metaball-layer" *ngIf="menuAberto">
         <app-metaballs
           class="metaball-canvas"
@@ -17,19 +16,17 @@
         </app-metaballs>
       </div>
 
-      <!-- CD -->
       <div class="cd-click-area" (click)="toggleMenu()">
         <div class="cd-background"></div>
 
-        <img 
-          src="assets/imagens/Blank_cd.png" 
+        <img
+          src="assets/imagens/Blank_cd.png"
           alt="CD Menu"
           class="cd-image"
           [class.paused]="menuTotalmenteAberto"
         />
       </div>
 
-      <!-- BUBBLES -->
         <div class="menu-bubbles" [class.ativo]="menuAberto">
 
           <button class="bubble bubble-1" (click)="irParaPokemon($event)" (transitionend)="onTransitionEnd($event)"

@@ -4,8 +4,8 @@ import {
   ViewChild,
   AfterViewInit,
   OnDestroy,
-  Output, 
-  EventEmitter 
+  Output,
+  EventEmitter
 } from '@angular/core';
 
 import { Router } from '@angular/router';
@@ -37,22 +37,16 @@ export class CoinComponent implements AfterViewInit, OnDestroy {
   private phase = 0;
   private isAnimating = false;
 
-// ===== CONFIGURÁVEIS =====
-
-// eixo da rolagem (moeda rolando no chão)
 rollAxis: 'x' | 'y' | 'z' = 'z';
 
-// eixo da virada (tombar para dentro)
 turnAxis: 'x' | 'y' | 'z' = 'y';
 
-// eixo do giro final antes de cair
 spinAxis: 'x' | 'y' | 'z' = 'x';
 
-targetX = 0;      // ponto onde vira
-rollSpeed = 8;    // velocidade de rotação
-moveSpeed = 3;    // velocidade horizontal
-fallSpeed = 4;    // velocidade queda
-// ==========================
+targetX = 0;
+rollSpeed = 8;
+moveSpeed = 3;
+fallSpeed = 4;
 
   constructor(private router: Router) {}
 
@@ -90,7 +84,7 @@ fallSpeed = 4;    // velocidade queda
   }
 
   private loadModel(): void {
-    
+
     const mtlLoader = new MTLLoader();
     mtlLoader.setPath('assets/modelos/coin/');
 
@@ -109,8 +103,7 @@ fallSpeed = 4;    // velocidade queda
           (object) => {
 
             this.model = object;
-            
-            // === CRIA PIVOT CENTRALIZADO ===
+
             this.pivot = new THREE.Object3D();
             this.scene.add(this.pivot);
 
@@ -118,15 +111,13 @@ fallSpeed = 4;    // velocidade queda
             const center = new THREE.Vector3();
             box.getCenter(center);
             this.model.position.sub(center);
-            
-            this.model.rotation.y = Math.PI; 
+
+            this.model.rotation.y = Math.PI;
 
             this.pivot.add(this.model);
 
-            // posição inicial (fora da tela)
             this.pivot.position.set(8, 2, 0);
 
-            // moeda "em pé"
             this.pivot.rotation.z = Math.PI / 2;
 
             this.modelReady = true;
@@ -146,9 +137,6 @@ fallSpeed = 4;    // velocidade queda
 
       switch (this.phase) {
 
-        // =========================
-        // FASE 0 - ROLANDO
-        // =========================
         case 0:
           this.pivot.position.x -= this.moveSpeed * delta;
           this.pivot.rotation[this.rollAxis] += this.rollSpeed * delta;
@@ -158,21 +146,14 @@ fallSpeed = 4;    // velocidade queda
           }
           break;
 
-        // =========================
-        // FASE 1 - TOMBANDO PARA DENTRO
-        // =========================
         case 1:
           this.pivot.rotation[this.turnAxis] -= 3 * delta;
 
-          // ajusta até aproximadamente 90 graus
           if (Math.abs(this.pivot.rotation[this.turnAxis]) >= Math.PI / 2) {
             this.phase = 2;
           }
           break;
 
-        // =========================
-        // FASE 2 - GIRANDO E ENCOLHENDO
-        // =========================
         case 2:
           this.pivot.rotation[this.spinAxis] += 6 * delta;
 
@@ -184,9 +165,6 @@ fallSpeed = 4;    // velocidade queda
           }
           break;
 
-        // =========================
-        // FASE 3 - CAINDO
-        // =========================
         case 3:
           this.pivot.position.y -= this.fallSpeed * delta;
 
@@ -206,7 +184,6 @@ fallSpeed = 4;    // velocidade queda
     this.router.navigate(['/home']);
   }
 
-  // CHAMADO PELO START COMPONENT
   startAnimation(): void {
 
     if (!this.modelReady) {
@@ -218,8 +195,6 @@ fallSpeed = 4;    // velocidade queda
     this.clock.start();
     this.isAnimating = true;
   }
-
-  
 
   ngOnDestroy(): void {
     cancelAnimationFrame(this.animationId);

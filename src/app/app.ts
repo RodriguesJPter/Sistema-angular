@@ -30,11 +30,11 @@ import { MusicService } from './services/music.service';
       min-height: 100vh;
       padding: 0px;
     }
-    
+
     .content {
       flex: 1;
       padding: 60px;
-      margin-top: 160px; 
+      margin-top: 160px;
     }
   `]
 
@@ -51,10 +51,9 @@ export class App {
     this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
     .subscribe(() => {
-      // menu sempre visível e música tocando nas telas
+
       this.showMenu = true;
       this.music.resume();
     });
   }
 }
-

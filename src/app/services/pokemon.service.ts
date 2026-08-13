@@ -18,11 +18,9 @@ export class PokemonService {
   private cache = new Map<string, PokemonDetalhado>();
   private evolutionCache = new Map<string, any>();
 
-  // caches da tabela otimizada
   private listaBase: PokemonTabela[] | null = null;
   private detalheCache = new Map<number, { height: number; tipo: string }>();
   private tipoCache = new Map<string, Set<string>>();
-
 
   constructor(private http: HttpClient) {
   this.carregarEdicoesIniciais();
@@ -107,15 +105,10 @@ export class PokemonService {
       );
   }
 
-
-  // ===== TABELA OTIMIZADA =====
-
-  // Sprite deduzido do id — não precisa de requisição de detalhe
   private spriteUrl(id: number): string {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   }
 
-  // 1 requisição traz a lista inteira (nome + nº). Cacheada.
   getListaBase(): Observable<PokemonTabela[]> {
     if (this.listaBase) {
       return of(this.listaBase);
@@ -144,7 +137,6 @@ export class PokemonService {
       );
   }
 
-  // Detalhe (altura + tipo) só quando a linha aparece. Cacheado por id.
   getDetalheTabela(pokedex: number): Observable<{ height: number; tipo: string }> {
     if (this.detalheCache.has(pokedex)) {
       return of(this.detalheCache.get(pokedex)!);
@@ -160,7 +152,6 @@ export class PokemonService {
     );
   }
 
-  // Nomes de um tipo (1 requisição no /type). Cacheado.
   getNomesPorTipo(tipo: string): Observable<Set<string>> {
     if (this.tipoCache.has(tipo)) {
       return of(this.tipoCache.get(tipo)!);
@@ -209,7 +200,6 @@ getPokemonComEdicoes(id: number): Observable<PokemonDetalhado | null> {
       );
 }
 
-
 getEdicoesSalvas(): PokemonDetalhado[] {
   const dados = sessionStorage.getItem(this.storageKey);
   return dados ? JSON.parse(dados) : [];
@@ -241,19 +231,17 @@ salvarEdicao(pokemon: PokemonDetalhado): void {
   }
   sessionStorage.setItem(this.storageKey, JSON.stringify(edicoesAtuais));
   this.edicoesSubject.next(edicoesAtuais);
-  
+
   this.cache.set(pokemon.name.toLowerCase(), pokemonOtimizado);
   this.cache.set(pokemon.id.toString(), pokemonOtimizado);
 }
 
 getEvolutionChainFromSpecies(speciesUrl: string): Observable<any> {
 
-  // 🔹 Se já existe no cache → retorna instantâneo
   if (this.evolutionCache.has(speciesUrl)) {
     return of(this.evolutionCache.get(speciesUrl));
   }
 
-  // 🔹 Caso contrário → busca e salva
   return this.http.get<any>(speciesUrl).pipe(
     switchMap(species =>
       this.http.get<any>(species.evolution_chain.url)

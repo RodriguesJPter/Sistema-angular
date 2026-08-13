@@ -50,8 +50,6 @@ $navy2: #1084d0;
   }
 }
 
-/* ===== MONITOR CRT ===== */
-
 .crt {
   position: relative;
   z-index: 1;
@@ -156,8 +154,6 @@ $navy2: #1084d0;
   box-shadow: 0 18px 24px -12px rgba(0, 0, 0, 0.65);
 }
 
-/* ===== BOOT ===== */
-
 .boot {
   position: absolute;
   inset: 0;
@@ -198,8 +194,6 @@ $navy2: #1084d0;
   opacity: 0.8;
 }
 
-/* ===== LOGO WINDOWS (4 quadrados) ===== */
-
 .winlogo {
   display: inline-block;
   height: 16px;
@@ -210,8 +204,6 @@ $navy2: #1084d0;
 .winlogo.big {
   height: 52px;
 }
-
-/* ===== DESKTOP ===== */
 
 .desktop {
   position: absolute;
@@ -259,8 +251,6 @@ $navy2: #1084d0;
 .ico:hover .lbl {
   background: $navy1;
 }
-
-/* ===== JANELAS ===== */
 
 .win {
   position: absolute;
@@ -344,8 +334,6 @@ $navy2: #1084d0;
   box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
 }
 
-/* ===== NOTEPAD (descrição) ===== */
-
 .note { margin: 3px; }
 
 .note-menu {
@@ -356,9 +344,6 @@ $navy2: #1084d0;
 
 .win-note { width: 264px; }
 
-/* ===== JANELAS EMBUTIDAS (perfil / contato) ===== */
-
-/* Sobre mim = janela grande (~95% da tela do PC), estilo app */
 .win-perfil {
   left: 2.5%;
   top: 12px;
@@ -370,6 +355,15 @@ $navy2: #1084d0;
 .win-perfil .tb { flex: 0 0 auto; }
 
 .win-contato { width: min(470px, 84%); }
+
+.win-game { width: min(470px, 86%); }
+
+.win-game .embed-game {
+  height: 300px;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+}
 
 .embed {
   margin: 6px;
@@ -395,8 +389,6 @@ $navy2: #1084d0;
   text-align: justify;
   box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
 }
-
-/* ===== JANELA "COMO FOI FEITO" ===== */
 
 .win-about { width: 322px; }
 
@@ -426,8 +418,6 @@ $navy2: #1084d0;
   line-height: 1.5;
   color: #222;
 }
-
-/* ===== MENU INICIAR ===== */
 
 .startmenu {
   position: absolute;
@@ -470,8 +460,6 @@ $navy2: #1084d0;
   margin: 3px 4px;
   box-shadow: inset 0 1px #808080, inset 0 -1px #fff;
 }
-
-/* ===== BARRA DE TAREFAS ===== */
 
 .taskbar {
   position: absolute;

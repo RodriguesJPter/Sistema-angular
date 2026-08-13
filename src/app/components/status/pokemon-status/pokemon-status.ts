@@ -51,7 +51,6 @@ export class PokemonStatus implements OnInit {
   private arrastando = false;
   private offset = { x: 0, y: 0 };
 
-
 constructor(
   private pokemonService: PokemonService,
   private router: Router,
@@ -109,7 +108,6 @@ buscarPokemon(): void {
     return;
   }
 
-  
   this.pokemonService.getDetalhesPokemon(nome).subscribe({
     next: (pokemon) => {
 
@@ -138,12 +136,10 @@ buscarPokemon(): void {
   });
 }
 
-
-
   private formatarDadosPokemon(data: any): any {
     return {
       nome: data.name,
-      sprite: data.sprites?.front_default || 
+      sprite: data.sprites?.front_default ||
              data.sprites?.other?.['official-artwork']?.front_default,
       ataque: data.stats?.find((s: any) => s.stat.name === 'attack')?.base_stat || 0,
       defesa: data.stats?.find((s: any) => s.stat.name === 'defense')?.base_stat || 0,
@@ -184,17 +180,16 @@ private carregarDadosEditados(dados: any): void {
 }
 
 private carregarDadosApi(data: any): void {
-  this.carregarDadosEditados({ 
+  this.carregarDadosEditados({
     ...data,
     id: data.id,
     name: data.name
   });
 }
 
-
   favoritar(): void {
     if (!this.dadosPokemon) return;
-    
+
     const favs = JSON.parse(localStorage.getItem('pokemonsFavoritos') || '[]');
     const existe = favs.find((p: any) => p.name === this.dadosPokemon.nome);
 
@@ -209,7 +204,7 @@ private carregarDadosApi(data: any): void {
       favs.push({
         name: this.dadosPokemon.nome,
         sprite: this.dadosPokemon.sprite,
-        tipo: this.dadosPokemon.tipo 
+        tipo: this.dadosPokemon.tipo
       });
     }
     this.atualizarLista.emit();
@@ -231,7 +226,7 @@ private carregarDadosApi(data: any): void {
 
   handleImageError(event: any) {
     if (this.dadosPokemon?.sprites) {
-      event.target.src = this.dadosPokemon.sprites.other?.['official-artwork']?.front_default || 
+      event.target.src = this.dadosPokemon.sprites.other?.['official-artwork']?.front_default ||
                         'assets/imagens/error.png';
     } else {
       event.target.src = 'assets/imagens/error.png';

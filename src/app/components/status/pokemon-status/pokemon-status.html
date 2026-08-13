@@ -12,8 +12,8 @@
       <div class="status-input">
         <mat-form-field appearance="outline" class="slim-field">
             <mat-label>Pokémon</mat-label>
-            <input matInput 
-              [(ngModel)]="nomePesquisa" 
+            <input matInput
+              [(ngModel)]="nomePesquisa"
               (keyup.enter)="buscarPokemon()"
               (ngModelChange)="limparSeVazio()"
               placeholder="Ex. Pikachu">
@@ -25,8 +25,8 @@
 
       <div class="status-body">
         <div class="slim-pokemon-display">
-          <img *ngIf="dadosPokemon?.sprites; else placeholder" 
-               [src]="dadosPokemon.sprites.front_default || 'assets/imagens/error.png'" 
+          <img *ngIf="dadosPokemon?.sprites; else placeholder"
+               [src]="dadosPokemon.sprites.front_default || 'assets/imagens/error.png'"
                alt="sprite"
                class="slim-sprite"
                (error)="handleImageError($event)">
@@ -41,7 +41,7 @@
             <mat-progress-bar mode="determinate" [value]="dadosPokemon?.ataque || 0" class="slim-bar"></mat-progress-bar>
             <span class="stat-value">{{dadosPokemon?.ataque || 0}}</span>
           </div>
-          
+
           <div class="slim-stat">
             <span class="stat-label">DEF</span>
             <mat-progress-bar mode="determinate" [value]="dadosPokemon?.defesa || 0" class="slim-bar"></mat-progress-bar>

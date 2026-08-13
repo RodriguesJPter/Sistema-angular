@@ -4,16 +4,16 @@
 </div>
 
 <div *ngIf="pokemonEditado && !errorMessage; else errorTemplate">
-  <div 
-    class="card-3d-wrapper" 
-    [ngStyle]="{'transform': transformStyle}" 
-    (mousemove)="onMouseMove($event, cardElement)" 
+  <div
+    class="card-3d-wrapper"
+    [ngStyle]="{'transform': transformStyle}"
+    (mousemove)="onMouseMove($event, cardElement)"
     (mouseleave)="onMouseLeave()"
     #cardElement>
 
-    <button 
-      class="btn-toggle-3d" 
-      mat-icon-button 
+    <button
+      class="btn-toggle-3d"
+      mat-icon-button
       matTooltip="Ativar/desativar efeito 3D"
       (click)="ativar3D = !ativar3D">
       <mat-icon class="icon-3d">{{ ativar3D ? 'close' : '360' }}</mat-icon>
@@ -46,9 +46,9 @@
                (load)="onImagemPrincipalCarregada()"
                (error)="onImagemPrincipalCarregada()">
 
-          <img class="shiny-image" 
+          <img class="shiny-image"
                *ngIf="pokemonEditado.sprites?.other?.['official-artwork']?.front_shiny"
-               [src]="pokemonEditado.sprites.other['official-artwork'].front_shiny" 
+               [src]="pokemonEditado.sprites.other['official-artwork'].front_shiny"
                [alt]="pokemonEditado.name + ' shiny'">
         </div>
 

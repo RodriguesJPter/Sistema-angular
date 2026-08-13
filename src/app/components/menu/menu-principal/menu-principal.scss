@@ -6,8 +6,8 @@ $cd-size: 150px;
 $bubble-size: 65px;
 $expanded-width: 220px;
 
-$menu-dark: #0C120A; // tom mais escuro para diferenciar o menu na seção dark
-$menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
+$menu-dark: #0C120A;
+$menu-blood: #150708;
 
 .menu-topo {
   width: 100%;
@@ -31,12 +31,10 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   &.menu-escuro {
     background-color: $menu-dark;
 
-    // fundo atrás do CD
     .cd-background {
       background: radial-gradient(circle, $primary-light 0%, $menu-dark 70%);
     }
 
-    // opções do menu (bubbles)
     .bubble {
       background: $menu-dark;
       border-color: $menu-dark;
@@ -47,7 +45,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
     }
   }
 
-  // blood moon: acompanha o card do perfil centralizado (precede o menu-escuro)
   &.blood-moon {
     background-color: $menu-blood;
 
@@ -127,7 +124,7 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
 .menu-music-player {
   position: absolute;
   top: 81%;
-  left: 360px; 
+  left: 360px;
   transform: translateY(-50%);
   z-index: 9999;
   box-shadow: none !important;
@@ -137,8 +134,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
-/* ===== BUBBLES ===== */
 
 .menu-bubbles {
   position: absolute;
@@ -170,13 +165,9 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
     transform 0.8s cubic-bezier(.34,1.56,.64,1);
 }
 
-/* POSIÇÕES */
-
 .bubble-1 { top: 120px; left: 180px; }
 .bubble-2 { top: 167px; left: 98px; }
 .bubble-3 { top: 180px; left: 1px; }
-
-/* ESTADO FECHADO */
 
 .menu-bubbles:not(.ativo) .bubble-1 {
   transform: translate(-105px, -45px) scale(0.2);
@@ -190,13 +181,9 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   transform: translate(74px, -105px) scale(0.2);
 }
 
-/* ESTADO ABERTO */
-
 .menu-bubbles.ativo .bubble {
   transform: translate(0, 0) scale(1);
 }
-
-/* ===== HOVER ===== */
 
 .bubble:hover {
   border-radius: 40px;
@@ -217,8 +204,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   width: 160px;
 }
 
-/* ===== ÍCONE BASE (modo círculo) ===== */
-
 .icon {
   position: absolute;
   top: 50%;
@@ -226,7 +211,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   width: 38px;
   height: 38px;
 
-  /* valores padrão */
   --x: -50%;
   --y: -50%;
   --scale: 1;
@@ -238,8 +222,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   align-items: center;
   justify-content: center;
 }
-
-/* AJUSTES INDIVIDUAIS NO MODO CÍRCULO */
 
 .bubble-1 .icon {
   --x: -50%;
@@ -259,8 +241,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   --scale: 1.05;
 }
 
-/* RESET QUANDO EXPANDE */
-
 .bubble-1:hover .icon {
   --x: -240%;
   --y: -50%;
@@ -279,8 +259,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   --scale: 1.15;
 }
 
-/* IMAGENS */
-
 .icon img,
 .icon svg {
   width: 60%;
@@ -292,8 +270,6 @@ $menu-blood: #150708; // tom sangue bem escuro (mais escuro que o fundo da info)
   fill: $primary-light !important;
   color: $primary-light !important;
 }
-
-/* ===== TEXTO ===== */
 
 .label {
   color: white;

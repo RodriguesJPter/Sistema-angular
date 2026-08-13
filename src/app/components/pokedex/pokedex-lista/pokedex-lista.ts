@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { trigger, style, transition, animate } from '@angular/animations';
 
-
 @Component({
   selector: 'app-pokedex-lista',
   standalone: true,
@@ -23,11 +22,11 @@ import { trigger, style, transition, animate } from '@angular/animations';
     trigger('pokemonAppear', [
       transition(':enter', [
         style({ transform: 'scale(0.5) rotate(-30deg)', opacity: 0 }),
-        animate('400ms cubic-bezier(0.175, 0.885, 0.32, 1.275)', 
+        animate('400ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           style({ transform: 'scale(1) rotate(0)', opacity: 1 }))
       ]),
       transition(':leave', [
-        animate('200ms ease-in', 
+        animate('200ms ease-in',
           style({ transform: 'scale(0.5) rotate(30deg)', opacity: 0 }))
       ])
     ])
@@ -85,18 +84,17 @@ export class PokedexLista implements OnInit, OnChanges {
   }
 
   removerFavorito(index: number): void {
-    this.slots[index] = null; 
+    this.slots[index] = null;
 
     const favs = localStorage.getItem('pokemonsFavoritos');
     const lista = favs ? JSON.parse(favs) : [];
 
-    lista.splice(index, 1); 
+    lista.splice(index, 1);
     localStorage.setItem('pokemonsFavoritos', JSON.stringify(lista));
 
-    this.carregarFavoritos(); 
+    this.carregarFavoritos();
     this.remover.emit(index);
   }
-
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['atualizarListaTrigger']) {
@@ -112,7 +110,7 @@ export class PokedexLista implements OnInit, OnChanges {
     lista.slice(0, 6).forEach((p: any, i: number) => this.slots[i] = p);
 
     const quantidade = lista.length;
-    
+
     if (quantidade === 0) {
       this.mensagemNotificacao = 'Nenhum Pokémon adicionado!';
     } else if (quantidade >= 6) {

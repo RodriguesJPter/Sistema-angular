@@ -25,7 +25,6 @@ export class ContatoTerminal implements AfterViewInit, OnDestroy {
 
   @ViewChild('root', { static: true }) root!: ElementRef<HTMLElement>;
 
-  // quando embutido (dentro do PC), remove a faixa/fundo da seção
   @Input() embutido = false;
 
   private readonly comandoFull = 'contato --list';

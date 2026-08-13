@@ -7,7 +7,6 @@
   justify-content: center;
 }
 
-/* embutido no PC: sem faixa/fundo/padding, o terminal preenche a janela */
 .contato-wrap.embutido {
   background: transparent;
   padding: 0;
@@ -29,7 +28,6 @@
     inset 0 0 60px rgba(0, 0, 0, 0.6);
 }
 
-/* scanlines + leve vinheta de CRT */
 .terminal::after {
   content: "";
   position: absolute;

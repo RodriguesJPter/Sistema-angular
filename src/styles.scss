@@ -1,6 +1,3 @@
-
-// Custom Theming for Angular Material
-// For more information: https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
 html {
@@ -13,8 +10,7 @@ html {
     typography: Roboto,
     density: 0,
   ));
-}/* You can add global styles to this file, and also import other style files */
-
+}
 
 html, body { height: 100%; }
 body {
@@ -23,8 +19,18 @@ body {
   padding: 0% !important;
 }
 
-/* Fonte Sangar (não está no Google Fonts):
-   coloque o arquivo em src/assets/fonts/ com um destes nomes. */
+html {
+  background: #1A2517;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 @font-face {
   font-family: 'Sangar';
   src: url('/assets/fonts/sangar.woff2') format('woff2'),

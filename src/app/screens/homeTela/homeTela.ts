@@ -6,7 +6,6 @@ import { TargetCursorComponent } from '../../components/target-cursor/target-cur
 import { SkillsPc } from '../../components/skills-pc/skills-pc';
 import { Intro } from '../../components/intro/intro';
 
-
 @Component({
   selector: 'app-home-tela',
   standalone: true,

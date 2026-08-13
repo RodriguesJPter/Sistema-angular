@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { PerfilRpg } from '../perfil-rpg/perfil-rpg';
 import { ContatoTerminal } from '../contato-terminal/contato-terminal';
+import { GameFps } from '../game-fps/game-fps';
 
 interface Tech {
   name: string;
@@ -18,14 +19,14 @@ interface Tech {
 interface Category {
   id: string;
   name: string;
-  icon: string;   // Material Icons font name
+  icon: string;
   fileIcon: string;
   techs: Tech[];
 }
 
 interface Win {
   id: string;
-  kind: 'folder' | 'note' | 'about' | 'perfil' | 'contato';
+  kind: 'folder' | 'note' | 'about' | 'perfil' | 'contato' | 'game';
   title: string;
   icon: string;
   x: number;
@@ -38,7 +39,7 @@ interface Win {
 @Component({
   selector: 'app-skills-pc',
   standalone: true,
-  imports: [CommonModule, PerfilRpg, ContatoTerminal],
+  imports: [CommonModule, PerfilRpg, ContatoTerminal, GameFps],
   templateUrl: './skills-pc.html',
   styleUrls: ['./skills-pc.scss']
 })
@@ -52,7 +53,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   bootProgress = 0;
   startOpen = false;
   clock = '00:00';
-  crtLigado = true; // efeito de tela (scanlines/vinheta) ligado/desligado
+  crtLigado = true;
 
   categories: Category[] = [
     {
@@ -111,7 +112,6 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     }
   ];
 
-  // "Making of" — como este componente foi feito (edite à vontade)
   aboutSections: { h: string; p: string }[] = [
     {
       h: 'A ideia',
@@ -159,7 +159,6 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   private booted = false;
   private clockTimer?: ReturnType<typeof setInterval>;
 
-  // ---- ciclo de vida ----
   ngAfterViewInit(): void {
     this.tick();
     this.clockTimer = setInterval(() => this.tick(), 15000);
@@ -186,7 +185,6 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     this.clock = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
   }
 
-  // ---- boot ----
   boot(): void {
     this.booting = true;
     this.powered = false;
@@ -212,7 +210,6 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     this.boot();
   }
 
-  // ---- janelas ----
   private focus(w: Win): void {
     this.zTop++;
     w.z = this.zTop;
@@ -269,6 +266,19 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     });
   }
 
+  openGame(): void {
+    this.startOpen = false;
+    const id = 'game';
+    const found = this.windows.find(w => w.id === id);
+    if (found) { this.focus(found); return; }
+
+    const n = this.windows.length;
+    this.windows.push({
+      id, kind: 'game', title: 'Game', icon: 'sports_esports',
+      x: 110 + n * 20, y: 20 + n * 16, z: ++this.zTop
+    });
+  }
+
   toggleCrt(ev?: Event): void {
     ev?.stopPropagation();
     this.crtLigado = !this.crtLigado;
@@ -300,7 +310,6 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     this.startOpen = !this.startOpen;
   }
 
-  // ---- arrastar janelas ----
   private dragWin?: Win;
   private offX = 0;
   private offY = 0;

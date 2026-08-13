@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators,FormsModule } from '@angular/forms';
-import { PokemonService } from '../../../services/pokemon.service'; 
+import { PokemonService } from '../../../services/pokemon.service';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { trigger, transition, animate, style, state, AnimationTriggerMetadata } from '@angular/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ChangeDetectorRef } from '@angular/core';
-
 
 @Component({
   selector: 'app-pokemoninfo',
@@ -31,7 +30,7 @@ import { ChangeDetectorRef } from '@angular/core';
     ReactiveFormsModule,
     FormsModule,
     MatIconModule,
-    MatTooltipModule 
+    MatTooltipModule
   ],
   templateUrl: './pokemoninfo.html',
   styleUrls: ['./pokemoninfo.scss'],
@@ -57,31 +56,31 @@ import { ChangeDetectorRef } from '@angular/core';
       trigger('slideInOut', [
       transition(':enter', [
         style({ transform: 'translateX(-100%) translateX(-50%)', opacity: 0 }),
-        animate('500ms ease-out', 
+        animate('500ms ease-out',
           style({ transform: 'translateX(-50%)', opacity: 1 }))
       ]),
       transition(':leave', [
-        animate('500ms ease-in', 
+        animate('500ms ease-in',
           style({ transform: 'translateX(100%) translateX(-50%)', opacity: 0 }))
       ])
     ]),
     trigger('evolutionFlash', [
       transition('* => *', [
-        animate('1500ms ease-in-out', 
+        animate('1500ms ease-in-out',
           style({ backgroundColor: 'rgba(173, 216, 230, 0.8)' }))
       ])
     ])
   ]
-  
+
 })
 
 export class Pokemoninfo implements OnInit {
   isRevealing = false;
-  cardPronto = false;   // vira true quando a imagem principal termina de carregar
+  cardPronto = false;
   ativar3D = false;
   transformStyle = '';
-  pokemonOriginal: any = null; 
-  pokemonEditado: any = null; 
+  pokemonOriginal: any = null;
+  pokemonEditado: any = null;
   modoEdicao = false;
   isLoading = true;
   errorMessage: string | null = null;
@@ -94,7 +93,7 @@ export class Pokemoninfo implements OnInit {
     private route: ActivatedRoute,
     private pokemonService: PokemonService,
     private router: Router,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -112,14 +111,12 @@ export class Pokemoninfo implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    
     const dadosLocais = this.obterDadosLocais(id);
     if (dadosLocais) {
       this.carregarDados(dadosLocais);
       return;
     }
 
-    
     this.pokemonService.getDetalhesPokemon(id).pipe(
       tap(() => console.log('Buscando dados da API...')),
       catchError(error => {
@@ -135,7 +132,7 @@ export class Pokemoninfo implements OnInit {
       next: (data) => {
         if (data) {
           this.carregarDados(data);
-          this.salvarDadosLocais(data); 
+          this.salvarDadosLocais(data);
         } else {
           this.mostrarErro('Pokémon não encontrado');
         }
@@ -147,10 +144,9 @@ export class Pokemoninfo implements OnInit {
     this.pokemonOriginal = dados;
     this.pokemonEditado = JSON.parse(JSON.stringify(dados));
     this.isLoading = false;
-    this.cardPronto = false;   // mostra o skeleton até a imagem carregar
+    this.cardPronto = false;
   }
 
-  // chamado quando a imagem principal (arte oficial) termina de carregar
   onImagemPrincipalCarregada(): void {
     this.cardPronto = true;
     this.isEvolving = false;
@@ -174,12 +170,12 @@ export class Pokemoninfo implements OnInit {
   private salvarDadosLocais(dados: any): void {
     let edicoesSalvas = [];
     const dadosExistentes = sessionStorage.getItem(this.storageKey);
-    
+
     if (dadosExistentes) {
       edicoesSalvas = JSON.parse(dadosExistentes);
       edicoesSalvas = edicoesSalvas.filter((p: any) => p.id !== dados.id);
     }
-    
+
     edicoesSalvas.push(dados);
     sessionStorage.setItem(this.storageKey, JSON.stringify(edicoesSalvas));
   }
@@ -236,7 +232,7 @@ export class Pokemoninfo implements OnInit {
     this.errorMessage = mensagem;
     this.isLoading = false;
     console.error(mensagem);
-    
+
     setTimeout(() => {
       this.errorMessage = null;
     }, 5000);
@@ -271,7 +267,6 @@ mostrarProximaEvolucao() {
             next: (nextEvo) => {
               if (!nextEvo) { this.resetEvolutionState(); return; }
 
-              // troca o pokémon e mostra o skeleton até a nova imagem carregar
               this.pokemonEditado = nextEvo;
               this.cardPronto = false;
               this.isRevealing = true;
@@ -305,6 +300,5 @@ private extrairIdDaUrl(url: string): number {
   const partes = url.split('/');
   return Number(partes[partes.length - 2]);
 }
-
 
 }

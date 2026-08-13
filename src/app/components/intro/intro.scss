@@ -8,8 +8,6 @@
   background: #05080a;
 }
 
-/* a cena (personagem, título, botão) ocupa só os primeiros 100vh;
-   o restante fica de folga para a onda não aparecer de cara */
 .cena {
   position: absolute;
   top: 0;
@@ -18,7 +16,6 @@
   height: 100vh;
 }
 
-/* ===== FUNDO ===== */
 .bg {
   position: absolute;
   inset: 0;
@@ -34,7 +31,6 @@
   background: radial-gradient(circle at 50% 55%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
 }
 
-/* ===== PLATAFORMA ===== */
 .plataforma {
   position: absolute;
   left: 50%;
@@ -49,7 +45,6 @@
   transition: transform 0.3s ease-out;
 }
 
-/* ===== PERSONAGEM ===== */
 .char-layer {
   position: absolute;
   left: 50%;
@@ -74,7 +69,6 @@
   to   { transform: translateY(-8px); }
 }
 
-/* ===== ARBUSTOS ===== */
 .bush {
   position: absolute;
   pointer-events: none;
@@ -106,7 +100,6 @@
   transform: translate(calc(var(--px, 0) * 12px), calc(var(--py, 0) * 8px)) scaleX(-1);
 }
 
-/* arbusto do meio: ATRÁS do personagem */
 .mid-center {
   bottom: -2vh;
   left: 50%;
@@ -133,7 +126,6 @@
 .back-right img { animation-duration: 8s; }
 .front-right img { animation-duration: 6.5s; }
 
-/* ===== TÍTULO (curvado, sem brilho) ===== */
 .titulo {
   position: absolute;
   top: 3vh;
@@ -152,8 +144,6 @@
   fill: #ACC8A2;
 }
 
-/* ===== BOTÃO ===== */
-/* botão estilo Persona 5 (inclinado, preto + verde, sombra dura) */
 .start-btn {
   position: absolute;
   left: 50%;
@@ -187,7 +177,6 @@
   transform: translateX(-50%) skewX(-9deg) translate(7px, 7px);
 }
 
-/* ===== ONDA DA DIVISÓRIA (invertida nos 2 eixos) ===== */
 .onda-divisor {
   position: absolute;
   left: 0;

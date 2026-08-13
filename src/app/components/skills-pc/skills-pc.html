@@ -8,7 +8,6 @@
   <div class="crt">
     <div class="crt-screen" #screen>
 
-      <!-- BOOT -->
       <div class="boot" *ngIf="booting">
         <div class="boot-logo">
           <img class="winlogo big" src="assets/imagens/logo_green.svg" alt="" aria-hidden="true" />
@@ -18,7 +17,6 @@
         <div class="boot-txt">iniciando…</div>
       </div>
 
-      <!-- DESKTOP -->
       <div class="desktop" *ngIf="powered" (pointerdown)="startOpen = false">
 
         <div class="icons">
@@ -34,6 +32,10 @@
             <span class="material-icons">mail</span>
             <span class="lbl">Contato</span>
           </div>
+          <div class="ico" (click)="openGame()">
+            <span class="material-icons">sports_esports</span>
+            <span class="lbl">Game</span>
+          </div>
           <div class="ico" (click)="openAbout()">
             <span class="material-icons">menu_book</span>
             <span class="lbl">Como foi feito</span>
@@ -45,6 +47,7 @@
              [class.win-note]="w.kind === 'note'"
              [class.win-perfil]="w.kind === 'perfil'"
              [class.win-contato]="w.kind === 'contato'"
+             [class.win-game]="w.kind === 'game'"
              [style.left.px]="w.kind === 'perfil' ? null : w.x"
              [style.top.px]="w.kind === 'perfil' ? null : w.y"
              [style.zIndex]="w.z"
@@ -89,6 +92,10 @@
             <app-contato-terminal [embutido]="true"></app-contato-terminal>
           </div>
 
+          <div class="embed embed-game" *ngIf="w.kind === 'game'">
+            <app-game-fps></app-game-fps>
+          </div>
+
         </div>
 
         <div class="startmenu" *ngIf="startOpen" (pointerdown)="$event.stopPropagation()">
@@ -104,6 +111,9 @@
           </div>
           <div class="sm-i" (click)="openContato()">
             <span class="material-icons">mail</span>Contato
+          </div>
+          <div class="sm-i" (click)="openGame()">
+            <span class="material-icons">sports_esports</span>Game
           </div>
           <div class="sm-i" (click)="openAbout()">
             <span class="material-icons">menu_book</span>Como foi feito

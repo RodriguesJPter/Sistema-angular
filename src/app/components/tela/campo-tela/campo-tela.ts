@@ -37,7 +37,7 @@ export class CampoTela implements AfterViewInit {
     this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
     this.camera.position.set(0, 2, 5);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiente adicional
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(ambientLight);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -83,16 +83,13 @@ carregarObjeto(): void {
   });
 }
 
-
   animar(): void {
   requestAnimationFrame(() => this.animar());
 
   this.controls.update();
 
-  // Atualiza posição da luz para a posição da câmera
   this.directionalLight.position.copy(this.camera.position);
 
-  // Opcional: direção da luz para onde a câmera está olhando (olhar no eixo Z da câmera)
   const cameraDirection = new THREE.Vector3();
   this.camera.getWorldDirection(cameraDirection);
   this.directionalLight.target.position.copy(this.camera.position.clone().add(cameraDirection));

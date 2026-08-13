@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MusicService } from '../../services/music.service';
 
 @Component({
   selector: 'app-intro',
@@ -10,12 +11,13 @@ import { CommonModule } from '@angular/common';
 })
 export class Intro implements OnInit, OnDestroy {
 
-  // posição do mouse normalizada (-1 a 1) para o parallax
   px = 0;
   py = 0;
 
+  constructor(private music: MusicService) {}
+
   ngOnInit(): void {
-    // trava o scroll até clicar em START GAME
+
     document.body.style.overflow = 'hidden';
     window.scrollTo(0, 0);
   }
@@ -31,7 +33,8 @@ export class Intro implements OnInit, OnDestroy {
   }
 
   start(): void {
-    // libera o scroll e desce para o conteúdo
+
+    this.music.resume();
     document.body.style.overflow = '';
     const intro = document.querySelector('.intro') as HTMLElement | null;
     const top = intro ? intro.offsetHeight : window.innerHeight;

@@ -6,5 +6,5 @@ import { take } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class PreloadService {
- 
+
 }

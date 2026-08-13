@@ -1,0 +1,26 @@
+<div class="game" tabindex="0" (pointerdown)="focar()" (mouseleave)="desfocar()">
+  <canvas #cv class="tela" (blur)="desfocar()"></canvas>
+  <button class="reset" (click)="reiniciar(); $event.stopPropagation()">reiniciar</button>
+  <button class="cfg" (click)="debug = !debug; $event.stopPropagation()">&#9881;</button>
+
+  <div class="painel" *ngIf="debug" (pointerdown)="$event.stopPropagation()">
+    <div class="abas">
+      <button [class.on]="alvo === 'arma'" (click)="alvo = 'arma'">arma</button>
+      <button [class.on]="alvo === 'espada'" (click)="alvo = 'espada'">espada</button>
+    </div>
+
+    <ng-container *ngIf="alvo === 'arma'">
+      <label>x <input type="range" min="-120" max="120" step="1" [value]="wpnOffX" (input)="wpnOffX = num($event)"><b>{{ wpnOffX }}</b></label>
+      <label>y <input type="range" min="-120" max="120" step="1" [value]="wpnOffY" (input)="wpnOffY = num($event)"><b>{{ wpnOffY }}</b></label>
+      <label>xscale <input type="range" min="0.3" max="2" step="0.01" [value]="wpnScaleX" (input)="wpnScaleX = num($event)"><b>{{ wpnScaleX }}</b></label>
+      <label>yscale <input type="range" min="0.3" max="2" step="0.01" [value]="wpnScaleY" (input)="wpnScaleY = num($event)"><b>{{ wpnScaleY }}</b></label>
+    </ng-container>
+
+    <ng-container *ngIf="alvo === 'espada'">
+      <label>x <input type="range" min="-120" max="120" step="1" [value]="swOffX" (input)="swOffX = num($event)"><b>{{ swOffX }}</b></label>
+      <label>y <input type="range" min="-120" max="120" step="1" [value]="swOffY" (input)="swOffY = num($event)"><b>{{ swOffY }}</b></label>
+      <label>xscale <input type="range" min="0.3" max="2" step="0.01" [value]="swScaleX" (input)="swScaleX = num($event)"><b>{{ swScaleX }}</b></label>
+      <label>yscale <input type="range" min="0.3" max="2" step="0.01" [value]="swScaleY" (input)="swScaleY = num($event)"><b>{{ swScaleY }}</b></label>
+    </ng-container>
+  </div>
+</div>

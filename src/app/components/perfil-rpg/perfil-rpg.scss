@@ -1,10 +1,10 @@
-$edge:   #47433c;   // moldura fria (cinza-marrom)
+$edge:   #47433c;
 $line:   #33302b;
-$ash:    #b3ac9e;   // texto ash
-$silver: #cec8b9;   // prata envelhecida (títulos)
+$ash:    #b3ac9e;
+$silver: #cec8b9;
 $muted:  #837d72;
-$blood:  #6f1b17;   // sangue escuro
-$blood2: #a8302a;   // sangue vivo (acento)
+$blood:  #6f1b17;
+$blood2: #a8302a;
 
 :host { display: block; width: 100%; }
 
@@ -18,8 +18,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
   align-items: center;
 }
 
-/* camada de "blood moon" que aparece suavemente por opacity
-   (gradiente não anima por si só; opacity anima) */
 .perfil-wrap::before {
   content: "";
   position: absolute;
@@ -29,15 +27,13 @@ $blood2: #a8302a;   // sangue vivo (acento)
   opacity: 0;
   transition: opacity 1s ease;
   background: radial-gradient(circle at 50% 40%, #3a1413 0%, #1a0809 60%, #0c0405 100%);
-  // esfumaça só as pontas (topo/base) para blend com as seções vizinhas,
-  // sem revelar o verde por cima do conteúdo
+
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%);
 }
 
 .perfil-wrap.no-alvo::before { opacity: 1; }
 
-/* embutido no PC: sem seção/fundo/padding, o card preenche a janela */
 .perfil-wrap.embutido {
   padding: 0;
   background: transparent;
@@ -45,9 +41,8 @@ $blood2: #a8302a;   // sangue vivo (acento)
 }
 .perfil-wrap.embutido::before { display: none; }
 
-/* ===== DENTRO DO PC: preenche a janela (janela grande estilo app) ===== */
 .souls.souls-embutido {
-  box-sizing: border-box; // largura 100% JÁ inclui o padding (não estoura pro lado)
+  box-sizing: border-box;
   width: 100%;
   max-width: none;
   min-height: 100%;
@@ -59,7 +54,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
 
 .souls-embutido::after { display: none; }
 
-/* largura FIXA (px) — usar % aqui colapsa a foto dentro do flex */
 .souls-embutido .portrait {
   width: 240px;
 }
@@ -110,9 +104,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
     inset 0 0 130px rgba(0, 0, 0, 0.9),
     inset 0 -46px 100px rgba(120, 20, 18, 0.12);
 }
-
-
-/* ===== CABEÇALHO / RETRATO ===== */
 
 .top {
   display: flex;
@@ -244,8 +235,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
   margin-top: 8px;
 }
 
-/* ===== BIO ===== */
-
 .desc {
   font-size: 17px;
   line-height: 1.9;
@@ -254,8 +243,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
   text-align: justify;
 }
 .desc + .desc { margin-top: 14px; }
-
-/* ===== ORNAMENTO ===== */
 
 .orn {
   display: flex;
@@ -276,8 +263,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
   border: 1px solid $blood2;
   background: #0b0b0d;
 }
-
-/* ===== ATRIBUTOS ===== */
 
 .attrs-h {
   font-family: 'Cormorant SC', serif;
@@ -328,8 +313,6 @@ $blood2: #a8302a;   // sangue vivo (acento)
   height: 100%;
   background: linear-gradient(90deg, #3a0f0d, $blood2);
 }
-
-/* ===== RODAPÉ ===== */
 
 .foot {
   margin-top: 24px;

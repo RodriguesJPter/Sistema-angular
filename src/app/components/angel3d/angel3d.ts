@@ -10,7 +10,6 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 
-
 @Component({
   selector: 'app-angel3d',
   templateUrl: './angel3d.html',
@@ -23,7 +22,7 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('darkSection', { static: true })
   darkSection!: ElementRef<HTMLDivElement>;
-  
+
   private baseRotationY = Math.PI;
   private autoRotation = 0;
   private wasMouseInside = false;
@@ -74,7 +73,7 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
 
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setClearColor(0x000000, 0); 
+    this.renderer.setClearColor(0x000000, 0);
 
     this.container.nativeElement.appendChild(this.renderer.domElement);
 
@@ -98,16 +97,15 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
       objLoader.load('Meshy_AI_Winged_Revolver_0303131833_texture.obj', (object) => {
 
       object.scale.set(0.5, 0.5, 0.5);
-      
+
       const box = new THREE.Box3().setFromObject(object);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
 
-      
       object.position.sub(center);
 
       object.rotation.x = -Math.PI / 8;
-      object.rotation.y = Math.PI; 
+      object.rotation.y = Math.PI;
       object.rotation.z = 0;
 
       this.model = object;
@@ -163,17 +161,13 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
         desiredX = 0;
       }
 
-      // 🔥 CORREÇÃO DO GIRO EM 360°
-
       const currentY = this.model.rotation.y;
       let deltaY = desiredY - currentY;
 
-      // normaliza entre -PI e +PI
       deltaY = this.normalizeAngle(deltaY);
 
       this.model.rotation.y += deltaY * 0.08;
 
-      // X pode continuar normal (não gira 360 como Y)
       this.model.rotation.x += (desiredX - this.model.rotation.x) * 0.08;
 
       this.wasMouseInside = this.isMouseInside;

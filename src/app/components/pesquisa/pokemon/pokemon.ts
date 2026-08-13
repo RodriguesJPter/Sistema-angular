@@ -57,7 +57,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class Pokemon implements OnInit {
   pageIndex: number = 0;
-  pageSize: number = 10; 
+  pageSize: number = 10;
   totalRegistros: number = 0;
 
   public logo = 'assets/imagens/Pokemon_logo.png';
@@ -73,7 +73,6 @@ export class Pokemon implements OnInit {
 
   public todosPokemons: PokemonTabela[] = [];
   public pokemonsFiltrados: PokemonTabela[] = [];
-
 
   public atualizarWidget = 0;
   public widgetPosicao = { top: 200, left: 200 };
@@ -170,13 +169,12 @@ export class Pokemon implements OnInit {
     };
 
     if (tipoFiltro) {
-      // filtro de tipo resolvido por 1 requisição no /type (cacheada)
+
       this.pokemonService.getNomesPorTipo(tipoFiltro).subscribe(nomes => aplicar(nomes));
     } else {
       aplicar();
     }
   }
-
 
   private aplicarFiltros(): void {
     const nomeFiltro = this.filtroNome.toLowerCase().trim();
@@ -245,10 +243,9 @@ export class Pokemon implements OnInit {
     const larguraSlot = 160;
     const alturaSlot = 130;
 
-    const col = slotIndex % 3; 
-    const row = Math.floor(slotIndex / 3); 
+    const col = slotIndex % 3;
+    const row = Math.floor(slotIndex / 3);
 
-   
     const isLadoEsquerdo = slotIndex < 3;
 
     return {
@@ -256,7 +253,6 @@ export class Pokemon implements OnInit {
       left: isLadoEsquerdo ? 40 + col * larguraSlot : 1080 - 3 * larguraSlot + col * larguraSlot
     };
   }
-
 
   salvarPosicao(): void {
     localStorage.setItem('widgetPosicao', JSON.stringify(this.widgetPosicao));
@@ -320,11 +316,11 @@ export class Pokemon implements OnInit {
   }
 
   getSlotPosicao(i: number): { top: string, left: string } {
-    const col = i % 3; 
+    const col = i % 3;
     const row = Math.floor(i / 3);
     return {
       top: `${300 + row * 140}px`,
-      left: `${100 + col * 180}px`  
+      left: `${100 + col * 180}px`
     };
   }
 
@@ -342,7 +338,6 @@ export class Pokemon implements OnInit {
     this.enriquecerVisiveis(pagina);
   }
 
-  // Busca altura/tipo apenas das linhas visíveis (com cache no serviço)
   private enriquecerVisiveis(pagina: PokemonTabela[]): void {
     pagina.forEach(row => {
       if (row.enriquecido) return;
