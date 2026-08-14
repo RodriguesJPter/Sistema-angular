@@ -13,11 +13,13 @@ export class Intro implements OnInit, OnDestroy {
 
   px = 0;
   py = 0;
+  private semMouse = false;
 
   constructor(private music: MusicService) {}
 
   ngOnInit(): void {
 
+    this.semMouse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     document.body.style.overflow = 'hidden';
     window.scrollTo(0, 0);
   }
@@ -28,6 +30,7 @@ export class Intro implements OnInit, OnDestroy {
 
   @HostListener('window:mousemove', ['$event'])
   onMove(e: MouseEvent): void {
+    if (this.semMouse) return;
     this.px = (e.clientX / window.innerWidth - 0.5) * 2;
     this.py = (e.clientY / window.innerHeight - 0.5) * 2;
   }

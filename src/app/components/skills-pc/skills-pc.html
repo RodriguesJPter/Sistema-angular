@@ -2,7 +2,7 @@
 
   <div class="pc-heading">
     <h2>Minhas habilidades</h2>
-    <p>clique nos ícones para explorar — arraste as janelas e abra o menu iniciar</p>
+    <p>clique nos ícones para explorar, arraste as janelas e abra o menu iniciar</p>
   </div>
 
   <div class="crt">
@@ -48,14 +48,16 @@
              [class.win-perfil]="w.kind === 'perfil'"
              [class.win-contato]="w.kind === 'contato'"
              [class.win-game]="w.kind === 'game'"
-             [style.left.px]="w.kind === 'perfil' ? null : w.x"
-             [style.top.px]="w.kind === 'perfil' ? null : w.y"
+             [class.win-max]="w.max"
+             [style.left.px]="w.max || w.kind === 'perfil' ? null : w.x"
+             [style.top.px]="w.max || w.kind === 'perfil' ? null : w.y"
              [style.zIndex]="w.z"
              (pointerdown)="bringToFront(w); $event.stopPropagation()">
 
-          <div class="tb" (pointerdown)="startDrag($event, w)">
+          <div class="tb" (pointerdown)="startDrag($event, w)" (dblclick)="toggleMax(w, $event)">
             <span class="material-icons tb-ic">{{ w.icon }}</span>
             <b>{{ w.title }}</b>
+            <button class="tb-btn" (click)="toggleMax(w, $event)" [attr.aria-label]="w.max ? 'Restaurar' : 'Maximizar'">{{ w.max ? '❐' : '☐' }}</button>
             <button class="tb-btn" (click)="close(w.id, $event)" aria-label="Fechar">✕</button>
           </div>
 

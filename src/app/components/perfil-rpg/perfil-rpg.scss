@@ -324,7 +324,13 @@ $blood2: #a8302a;
 }
 
 @media (max-width: 680px) {
-  .top { justify-content: center; }
+  .top { justify-content: center; gap: 18px; }
   .info { flex-basis: 100%; align-items: center; text-align: center; }
   .desc { text-align: left; }
+
+  .perfil-wrap { padding: 48px 12px 120px; }
+  .souls { padding: 22px 18px; }
+  .souls-embutido { padding: 20px 16px 26px; }
+  .souls-embutido .portrait { width: min(240px, 72vw); }
+  .perfil-title { letter-spacing: 4px; margin-bottom: 22px; }
 }

@@ -151,7 +151,7 @@ $primary-light: #ACC8A2;
   width: 100%;
   line-height: 0;
   margin-top: 120px;
-  background: $primary-dark;
+  background: linear-gradient(to bottom, $primary-light 0, $primary-light 4px, $primary-dark 4px);
 }
 
 .wave-divider svg {
@@ -273,7 +273,7 @@ $primary-light: #ACC8A2;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 100px 20px 50px;
+    padding: 100px 0 50px;
     min-height: 0;
     gap: 18px;
   }
@@ -294,7 +294,47 @@ $primary-light: #ACC8A2;
   .tech-card {
     position: static;
     inset: auto;
-    width: 100%;
-    max-width: 380px;
+    width: calc(100% - 48px);
+    max-width: 460px;
+    box-sizing: border-box;
   }
+}
+
+@media (max-width: 480px) {
+
+  .home {
+    padding-top: 76px;
+  }
+
+  .hero {
+    padding: 0 14px;
+
+    h1 { letter-spacing: 0; }
+  }
+
+  .content-box {
+    margin-top: 32px;
+    padding: 28px 16px;
+    border-radius: 18px;
+    width: 92%;
+
+    .descricao { font-size: 14px; margin-bottom: 28px; }
+  }
+
+  .card { padding: 20px; }
+
+  .wave-divider {
+    margin-top: 70px;
+  }
+
+  .wave-divider svg { height: 80px; }
+
+  .dark-section { padding: 60px 0 40px; }
+
+  .componente-3d {
+    max-width: 260px;
+    height: 280px;
+  }
+
+  .coin-wrapper { height: 320px; }
 }

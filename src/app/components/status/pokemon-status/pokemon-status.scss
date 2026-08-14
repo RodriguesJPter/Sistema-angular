@@ -160,3 +160,7 @@
 }
   }
 }
+
+@media (max-width: 420px) {
+  .status-widget { width: 86vw; max-width: 300px; }
+}

@@ -286,3 +286,24 @@ $menu-blood: #150708;
   margin-left: 30%;
   transform: translateX(0);
 }
+
+@media (max-width: 600px) {
+  .menu-topo {
+    padding-left: 12px;
+  }
+
+  .menu-music-player {
+    position: fixed;
+    top: 12px;
+    right: 26px;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    z-index: 200;
+  }
+
+  .metaball-layer {
+    width: 460px;
+    height: 460px;
+  }
+}

@@ -12,6 +12,18 @@ interface Sprite {
   ground: boolean;
 }
 
+interface Enemy {
+  x: number; y: number; hp: number;
+  state: 'walk' | 'attack' | 'dying' | 'dead';
+  frame: number; ft: number; atkCd: number; hurt: number;
+}
+
+interface Item {
+  x: number; y: number;
+  kind: 'hp' | 'ammo';
+  frame: number; ft: number;
+}
+
 @Component({
   selector: 'app-game-fps',
   standalone: true,
@@ -52,18 +64,20 @@ export class GameFps implements AfterViewInit, OnDestroy {
   private keys: Record<string, boolean> = {};
   ativo = false;
 
-  private enemy = {
-    x: 8, y: 3, hp: 100,
-    state: 'walk' as 'walk' | 'attack' | 'dying' | 'dead',
-    frame: 0, ft: 0, atkCd: 0
-  };
+  private enemies: Enemy[] = [];
+  private items: Item[] = [];
+  private respawn: { kind: 'hp' | 'ammo'; t: number }[] = [];
   private fireballs: { x: number; y: number; dx: number; dy: number; frame: number; ft: number }[] = [];
+  private onda = 1;
+  private abates = 0;
 
   private wpn = { state: 'idle' as 'idle' | 'shoot' | 'sword', frame: 0, ft: 0, hit: false };
   private fbAnim = 0;
   private bob = 0;
 
-  // ajuste manual (estilo GameMaker: x/y + xscale/yscale) — arma e espada separados
+  iniciado = false;
+  doc = false;
+
   debug = false;
   alvo: 'arma' | 'espada' = 'arma';
   wpnOffX = -111;
@@ -80,7 +94,6 @@ export class GameFps implements AfterViewInit, OnDestroy {
 
   private img: Record<string, HTMLImageElement[]> = {};
   private imgRed: Record<string, HTMLCanvasElement[]> = {};
-  private hurt = 0;
   private ready = false;
   private last = 0;
 
@@ -92,6 +105,9 @@ export class GameFps implements AfterViewInit, OnDestroy {
     this.ctx = c.getContext('2d')!;
     this.ctx.imageSmoothingEnabled = false;
 
+    this.spawnOnda();
+    this.items.push(this.novoItem('hp'), this.novoItem('ammo'));
+
     this.carregar().then(() => {
       this.ready = true;
       this.zone.runOutsideAngular(() => {
@@ -102,12 +118,16 @@ export class GameFps implements AfterViewInit, OnDestroy {
 
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('keyup', this.onKey);
+    document.addEventListener('mousemove', this.onMouse);
+    document.addEventListener('pointerlockchange', this.onPlock);
   }
 
   ngOnDestroy(): void {
     cancelAnimationFrame(this.raf);
     window.removeEventListener('keydown', this.onKey);
     window.removeEventListener('keyup', this.onKey);
+    document.removeEventListener('mousemove', this.onMouse);
+    document.removeEventListener('pointerlockchange', this.onPlock);
   }
 
   private async carregar(): Promise<void> {
@@ -126,8 +146,9 @@ export class GameFps implements AfterViewInit, OnDestroy {
     this.img['plo'] = await seq('player', 'lower', 9);
     this.img['pbl'] = await seq('player', 'blade', 6);
     this.img['fb'] = await seq('fx', 'fireball', 8);
+    this.img['heart'] = await seq('items', 'heart', 4);
+    this.img['ammo'] = [await load('items/ammo.png')];
 
-    // versões vermelhas do inimigo (flash de dano)
     for (const k of ['ew', 'ea', 'ed']) {
       this.imgRed[k] = this.img[k].map(im => this.tint(im));
     }
@@ -145,6 +166,31 @@ export class GameFps implements AfterViewInit, OnDestroy {
     return c;
   }
 
+  private celulaLivre(minDist: number): { x: number; y: number } {
+    for (let i = 0; i < 60; i++) {
+      const x = 1.5 + Math.random() * (this.MAP[0].length - 3);
+      const y = 1.5 + Math.random() * (this.MS - 3);
+      if (this.cell(x, y)) continue;
+      if (Math.hypot(x - this.player.x, y - this.player.y) < minDist) continue;
+      return { x, y };
+    }
+    return { x: 2.5, y: 2.5 };
+  }
+
+  private spawnOnda(): void {
+    this.enemies = [];
+    const n = Math.min(2 + this.onda, 8);
+    for (let i = 0; i < n; i++) {
+      const c = this.celulaLivre(4);
+      this.enemies.push({ x: c.x, y: c.y, hp: 100, state: 'walk', frame: 0, ft: 0, atkCd: 1 + Math.random(), hurt: 0 });
+    }
+  }
+
+  private novoItem(kind: 'hp' | 'ammo'): Item {
+    const c = this.celulaLivre(2);
+    return { x: c.x, y: c.y, kind, frame: 0, ft: 0 };
+  }
+
   private onKey = (e: KeyboardEvent) => {
     if (!this.ativo) return;
     const k = e.key.toLowerCase();
@@ -159,8 +205,50 @@ export class GameFps implements AfterViewInit, OnDestroy {
     }
   };
 
-  focar(): void { this.ativo = true; this.cv.nativeElement.focus(); }
-  desfocar(): void { this.ativo = false; }
+  private onMouse = (e: MouseEvent) => {
+    if (this.player.hp <= 0) return;
+    if (document.pointerLockElement === this.cv.nativeElement) {
+      this.player.ang += e.movementX * 0.0022;
+    }
+  };
+
+  private onPlock = () => {
+    this.ativo = document.pointerLockElement === this.cv.nativeElement;
+  };
+
+  iniciar(): void {
+    this.iniciado = true;
+    this.debug = false;
+    this.doc = false;
+    this.focar();
+  }
+
+  focar(): void {
+    if (!this.iniciado || this.player.hp <= 0 || this.doc) return;
+    this.ativo = true;
+    this.cv.nativeElement.focus();
+    try {
+      const r = this.cv.nativeElement.requestPointerLock() as unknown as Promise<void> | undefined;
+      if (r && typeof r.catch === 'function') r.catch(() => {  });
+    } catch {  }
+  }
+  desfocar(): void {
+    if (document.pointerLockElement !== this.cv.nativeElement) this.ativo = false;
+  }
+
+  toggleDoc(): void {
+    this.doc = !this.doc;
+    if (this.doc) {
+      this.ativo = false;
+      if (document.pointerLockElement === this.cv.nativeElement) document.exitPointerLock();
+    }
+  }
+
+  botao(e: MouseEvent): void {
+    if (!this.ativo) return;
+    if (e.button === 0) this.atirar();
+    else if (e.button === 2) this.espada();
+  }
 
   private cell(x: number, y: number): boolean {
     const gx = Math.floor(x), gy = Math.floor(y);
@@ -169,30 +257,33 @@ export class GameFps implements AfterViewInit, OnDestroy {
   }
 
   private atirar(): void {
-    if (this.wpn.state !== 'idle' || this.player.ammo <= 0) return;
+    if (this.wpn.state !== 'idle' || this.player.ammo <= 0 || this.player.hp <= 0) return;
     this.player.ammo--;
     this.wpn.state = 'shoot'; this.wpn.frame = 0; this.wpn.ft = 0; this.wpn.hit = false;
     this.acertarInimigo(6, 25);
   }
   private espada(): void {
-    if (this.wpn.state !== 'idle') return;
+    if (this.wpn.state !== 'idle' || this.player.hp <= 0) return;
     this.wpn.state = 'sword'; this.wpn.frame = 0; this.wpn.ft = 0; this.wpn.hit = false;
   }
 
   private acertarInimigo(alcance: number, dano: number): void {
-    if (this.enemy.state === 'dead' || this.enemy.state === 'dying') return;
-    const dx = this.enemy.x - this.player.x, dy = this.enemy.y - this.player.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist > alcance) return;
-    let a = Math.atan2(dy, dx) - this.player.ang;
-    while (a > Math.PI) a -= 2 * Math.PI;
-    while (a < -Math.PI) a += 2 * Math.PI;
-    // só acerta se o inimigo estiver sob a mira (+): compara com a meia-largura angular dele
-    const meia = Math.atan2(0.5, dist);
-    if (Math.abs(a) < meia) {
-      this.enemy.hp -= dano;
-      this.hurt = 0.14;
-      if (this.enemy.hp <= 0) { this.enemy.state = 'dying'; this.enemy.frame = 0; this.enemy.ft = 0; }
+    let alvo: Enemy | null = null;
+    let melhor = Infinity;
+    for (const e of this.enemies) {
+      if (e.state === 'dead' || e.state === 'dying') continue;
+      const dx = e.x - this.player.x, dy = e.y - this.player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > alcance || dist > melhor) continue;
+      let a = Math.atan2(dy, dx) - this.player.ang;
+      while (a > Math.PI) a -= 2 * Math.PI;
+      while (a < -Math.PI) a += 2 * Math.PI;
+      if (Math.abs(a) < Math.atan2(0.5, dist)) { alvo = e; melhor = dist; }
+    }
+    if (alvo) {
+      alvo.hp -= dano;
+      alvo.hurt = 0.14;
+      if (alvo.hp <= 0) { alvo.state = 'dying'; alvo.frame = 0; alvo.ft = 0; this.abates++; }
     }
   }
 
@@ -205,25 +296,42 @@ export class GameFps implements AfterViewInit, OnDestroy {
 
   private update(dt: number): void {
     const p = this.player;
-    const mv = 3 * dt, rot = 2.6 * dt;
-    if (this.keys['arrowleft'] || this.keys['a']) p.ang -= rot;
-    if (this.keys['arrowright'] || this.keys['d']) p.ang += rot;
-    const fwd = (this.keys['arrowup'] || this.keys['w'] ? 1 : 0) - (this.keys['arrowdown'] || this.keys['s'] ? 1 : 0);
-    if (fwd) {
-      const nx = p.x + Math.cos(p.ang) * mv * fwd;
-      const ny = p.y + Math.sin(p.ang) * mv * fwd;
-      if (!this.cell(nx, p.y)) p.x = nx;
-      if (!this.cell(p.x, ny)) p.y = ny;
+    const morto = p.hp <= 0;
+
+    if (morto && document.pointerLockElement === this.cv.nativeElement) {
+      document.exitPointerLock();
     }
-    const andando = fwd !== 0;
+
+    if (!this.iniciado || !this.ativo) return;
+
+    let andando = false;
+    if (!morto) {
+      const mv = 3 * dt, rot = 2.6 * dt;
+
+      if (this.keys['arrowleft']) p.ang -= rot;
+      if (this.keys['arrowright']) p.ang += rot;
+
+      const fwd = (this.keys['w'] || this.keys['arrowup'] ? 1 : 0) - (this.keys['s'] || this.keys['arrowdown'] ? 1 : 0);
+      const str = (this.keys['d'] ? 1 : 0) - (this.keys['a'] ? 1 : 0);
+      if (fwd || str) {
+        const cos = Math.cos(p.ang), sin = Math.sin(p.ang);
+
+        let stepX = cos * fwd - sin * str;
+        let stepY = sin * fwd + cos * str;
+        const len = Math.hypot(stepX, stepY) || 1;
+        stepX = stepX / len * mv; stepY = stepY / len * mv;
+        if (!this.cell(p.x + stepX, p.y)) p.x += stepX;
+        if (!this.cell(p.x, p.y + stepY)) p.y += stepY;
+      }
+      andando = fwd !== 0 || str !== 0;
+    }
     if (andando) this.bob += dt * 9; else this.bob = 0;
 
-    // arma
     if (this.wpn.state === 'shoot') {
       this.wpn.ft += dt;
       if (this.wpn.ft > 0.05) { this.wpn.ft = 0; this.wpn.frame++; if (this.wpn.frame >= 6) this.wpn.state = 'idle'; }
     } else if (this.wpn.state === 'sword') {
-      // 0..5 abaixa a arma | 6..11 golpe da espada | 12..14 arma volta
+
       this.wpn.ft += dt;
       if (this.wpn.ft > 0.04) {
         this.wpn.ft = 0; this.wpn.frame++;
@@ -237,35 +345,58 @@ export class GameFps implements AfterViewInit, OnDestroy {
       this.wpn.frame = 0;
     }
 
-    // inimigo
-    const e = this.enemy;
-    const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy);
-    if (e.state === 'dying') {
-      e.ft += dt;
-      if (e.ft > 0.06) { e.ft = 0; e.frame++; if (e.frame >= 12) { e.frame = 12; e.state = 'dead'; } }
-    } else if (e.state !== 'dead') {
-      if (dist > 2.5) {
-        e.state = 'walk';
-        const s = 1.3 * dt;
-        const nx = e.x + (dx / dist) * s, ny = e.y + (dy / dist) * s;
-        if (!this.cell(nx, e.y)) e.x = nx;
-        if (!this.cell(e.x, ny)) e.y = ny;
-        e.ft += dt; if (e.ft > 0.1) { e.ft = 0; e.frame = (e.frame + 1) % 7; }
-      } else {
-        e.state = 'attack';
-        e.ft += dt; if (e.ft > 0.12) { e.ft = 0; e.frame = (e.frame + 1) % 4; }
-        e.atkCd -= dt;
-        if (e.atkCd <= 0) {
-          e.atkCd = 1.6;
-          const d = Math.hypot(dx, dy) || 1;
-          this.fireballs.push({ x: e.x, y: e.y, dx: dx / d, dy: dy / d, frame: 0, ft: 0 });
+    let vivos = 0;
+    for (const e of this.enemies) {
+      if (e.hurt > 0) e.hurt = Math.max(0, e.hurt - dt);
+      const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy);
+      if (e.state === 'dying') {
+        e.ft += dt;
+        if (e.ft > 0.06) { e.ft = 0; e.frame++; if (e.frame >= 12) { e.frame = 12; e.state = 'dead'; } }
+      } else if (e.state !== 'dead') {
+        vivos++;
+        if (morto) continue;
+        if (dist > 2.5) {
+          e.state = 'walk';
+          const s = (1.1 + this.onda * 0.05) * dt;
+          const nx = e.x + (dx / dist) * s, ny = e.y + (dy / dist) * s;
+          if (!this.cell(nx, e.y)) e.x = nx;
+          if (!this.cell(e.x, ny)) e.y = ny;
+          e.ft += dt; if (e.ft > 0.1) { e.ft = 0; e.frame = (e.frame + 1) % 7; }
+        } else {
+          e.state = 'attack';
+          e.ft += dt; if (e.ft > 0.12) { e.ft = 0; e.frame = (e.frame + 1) % 4; }
+          e.atkCd -= dt;
+          if (e.atkCd <= 0) {
+            e.atkCd = 1.6;
+            const d = dist || 1;
+            this.fireballs.push({ x: e.x, y: e.y, dx: dx / d, dy: dy / d, frame: 0, ft: 0 });
+          }
         }
       }
     }
 
-    if (this.hurt > 0) this.hurt = Math.max(0, this.hurt - dt);
+    if (vivos === 0) { this.onda++; this.spawnOnda(); }
 
-    // fireballs
+    for (const it of this.items) {
+      if (it.kind === 'hp') { it.ft += dt; if (it.ft > 0.14) { it.ft = 0; it.frame = (it.frame + 1) % 4; } }
+    }
+    if (!morto) {
+      this.items = this.items.filter(it => {
+        if (Math.hypot(it.x - p.x, it.y - p.y) < 0.6) {
+          if (it.kind === 'hp') p.hp = Math.min(100, p.hp + 25);
+          else p.ammo += 10;
+          this.respawn.push({ kind: it.kind, t: 6 });
+          return false;
+        }
+        return true;
+      });
+    }
+    for (const r of this.respawn) r.t -= dt;
+    this.respawn = this.respawn.filter(r => {
+      if (r.t <= 0) { this.items.push(this.novoItem(r.kind)); return false; }
+      return true;
+    });
+
     this.fbAnim += dt;
     for (const f of this.fireballs) {
       f.x += f.dx * 4 * dt; f.y += f.dy * 4 * dt;
@@ -278,11 +409,10 @@ export class GameFps implements AfterViewInit, OnDestroy {
     });
   }
 
-  private enemyImg(): Pic | null {
-    const e = this.enemy;
+  private enemyImg(e: Enemy): Pic | null {
     if (e.state === 'dead') return this.img['ed'][12];
     if (e.state === 'dying') return this.img['ed'][e.frame];
-    const flash = this.hurt > 0;
+    const flash = e.hurt > 0;
     if (e.state === 'attack') { const i = e.frame % 4; return flash ? this.imgRed['ea'][i] : this.img['ea'][i]; }
     const i = e.frame % 7; return flash ? this.imgRed['ew'][i] : this.img['ew'][i];
   }
@@ -290,9 +420,9 @@ export class GameFps implements AfterViewInit, OnDestroy {
     if (this.wpn.state === 'shoot') return this.img['ps'][Math.min(this.wpn.frame, 5)];
     if (this.wpn.state === 'sword') {
       const f = this.wpn.frame;
-      if (f < 6) return this.img['plo'][f];              // abaixa (0..5)
-      if (f < 12) return this.img['pbl'][f - 6];         // espada (6..11)
-      return this.img['plo'][f - 6];                     // volta (12..14 -> lower 6..8)
+      if (f < 6) return this.img['plo'][f];
+      if (f < 12) return this.img['pbl'][f - 6];
+      return this.img['plo'][f - 6];
     }
     return this.img['pw'][this.wpn.frame % 4];
   }
@@ -301,7 +431,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
     const ctx = this.ctx, W = this.W, H = this.H, p = this.player;
     const bobV = Math.sin(this.bob) * 3;
     const horizon = H / 2 + bobV;
-    // céu/chão
+
     ctx.fillStyle = '#0b140d'; ctx.fillRect(0, 0, W, horizon);
     ctx.fillStyle = '#05080a'; ctx.fillRect(0, horizon, W, H - horizon);
 
@@ -333,10 +463,13 @@ export class GameFps implements AfterViewInit, OnDestroy {
       ctx.fillRect(x, y0, 1, sh);
     }
 
-    // sprites
     const sprites: Sprite[] = [];
-    if (this.enemy.state !== 'dead' || true) {
-      sprites.push({ x: this.enemy.x, y: this.enemy.y, img: () => this.enemyImg(), scale: 0.95, ground: true });
+    for (const e of this.enemies) {
+      sprites.push({ x: e.x, y: e.y, img: () => this.enemyImg(e), scale: 0.95, ground: true });
+    }
+    for (const it of this.items) {
+      const im = it.kind === 'hp' ? () => this.img['heart'][it.frame] : () => this.img['ammo'][0];
+      sprites.push({ x: it.x, y: it.y, img: im, scale: it.kind === 'hp' ? 0.32 : 0.28, ground: true });
     }
     for (const f of this.fireballs) {
       sprites.push({ x: f.x, y: f.y, img: () => this.img['fb'][f.frame], scale: 0.4, ground: false });
@@ -367,23 +500,19 @@ export class GameFps implements AfterViewInit, OnDestroy {
       }
     }
 
-    // mira (+) no centro da tela
     ctx.fillStyle = 'rgba(124,240,154,0.9)';
     ctx.fillRect(W / 2 - 4, H / 2, 9, 1);
     ctx.fillRect(W / 2, H / 2 - 4, 1, 9);
 
-    // arma (POV) — x/y + xscale/yscale ajustáveis
     const wi = this.wpnImg();
     if (wi && wi.width) {
       const bx = Math.sin(this.bob) * 5;
       const by = Math.abs(Math.cos(this.bob)) * 4;
-      // frames 9..14 do golpe são a espada; o resto (inclui abaixar a arma) usa o ajuste da arma
       const esp = this.wpn.state === 'sword' && this.wpn.frame >= 6 && this.wpn.frame < 12;
       const ox = esp ? this.swOffX : this.wpnOffX;
       const oy = esp ? this.swOffY : this.wpnOffY;
       const sxx = esp ? this.swScaleX : this.wpnScaleX;
       const syy = esp ? this.swScaleY : this.wpnScaleY;
-      // espada foi desenhada pra ocupar a tela inteira; a arma usa base menor
       const baseW = W * (esp ? 1 : this.wpnBase);
       const dw = baseW * sxx;
       const dh = baseW * (wi.height / wi.width) * syy;
@@ -392,28 +521,34 @@ export class GameFps implements AfterViewInit, OnDestroy {
       ctx.drawImage(wi, dx, dy, dw, dh);
     }
 
-    // HUD
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, H - 16, W, 16);
     ctx.fillStyle = '#7CF09A'; ctx.font = '9px monospace';
     ctx.fillText('HP ' + p.hp, 6, H - 5);
-    ctx.fillText('AMMO ' + p.ammo, 70, H - 5);
-    if (this.enemy.state === 'dead') {
-      ctx.fillStyle = '#e6fff0'; ctx.fillText('INIMIGO ABATIDO', W - 132, H - 5);
-    }
-    if (!this.ativo) {
-      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#eafff0'; ctx.font = '11px monospace';
-      ctx.fillText('CLIQUE PARA JOGAR', W / 2 - 60, H / 2);
-      ctx.font = '8px monospace';
-      ctx.fillText('WASD/setas mover  ESPACO atira  F espada', 18, H / 2 + 16);
+    ctx.fillText('AMMO ' + p.ammo, 60, H - 5);
+    ctx.fillText('ONDA ' + this.onda, 138, H - 5);
+    ctx.fillText('ABATES ' + this.abates, 194, H - 5);
+
+    if (p.hp <= 0) {
+      ctx.fillStyle = 'rgba(60,0,0,0.55)'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#ff6b6b'; ctx.font = '13px monospace';
+      ctx.fillText('VOCE MORREU', W / 2 - 44, H / 2);
+      ctx.fillStyle = '#eafff0'; ctx.font = '8px monospace';
+      ctx.fillText('clique em reiniciar', W / 2 - 44, H / 2 + 14);
+    } else if (this.iniciado && !this.ativo) {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#eafff0'; ctx.font = '10px monospace';
+      ctx.fillText('clique para continuar', W / 2 - 54, H / 2);
     }
   }
 
   reiniciar(): void {
     this.player = { x: 8, y: 8, ang: 0, hp: 100, ammo: 30 };
-    this.enemy = { x: 8, y: 3, hp: 100, state: 'walk', frame: 0, ft: 0, atkCd: 0 };
-    this.hurt = 0;
+    this.onda = 1; this.abates = 0;
+    this.spawnOnda();
+    this.items = [this.novoItem('hp'), this.novoItem('ammo')];
+    this.respawn = [];
     this.fireballs = [];
     this.wpn = { state: 'idle', frame: 0, ft: 0, hit: false };
+    if (this.iniciado) this.focar();
   }
 }

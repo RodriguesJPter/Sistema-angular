@@ -365,6 +365,79 @@ $navy2: #1084d0;
   overflow: hidden;
 }
 
+.win-max {
+  left: 0 !important;
+  top: 0 !important;
+  right: 0;
+  bottom: 32px;
+  width: auto !important;
+  max-width: none !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.win-max .tb { flex: 0 0 auto; }
+
+.win-max > .embed,
+.win-max > .body,
+.win-max > .about,
+.win-max > .note {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.win-max .embed-game {
+  height: auto;
+  flex: 1 1 auto;
+}
+
+// conteúdo interno preenche a janela maximizada (evita sobra/corte)
+.win-max .about,
+.win-max .note {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.win-max .about-body,
+.win-max .note-body {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
+}
+
+.win-max > .body {
+  overflow-y: auto;
+}
+
+.win-max .embed-contato {
+  display: flex;
+  flex-direction: column;
+}
+
+.win-max .embed-contato app-contato-terminal {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.win-max .embed-contato ::ng-deep .contato-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.win-max .embed-contato ::ng-deep .terminal {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.win-max .embed-contato ::ng-deep .term-body {
+  flex: 1 1 auto;
+}
+
 .embed {
   margin: 6px;
   box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
@@ -518,6 +591,34 @@ $navy2: #1084d0;
 
 .task .material-icons { font-size: 14px; }
 .task .t-lbl { overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 700px) {
+  .pc-wrap { padding: 34px 16px 56px; }
+
+  .pc-heading { margin-bottom: 16px; }
+  .pc-heading p { font-size: 12px; }
+
+  .crt {
+    width: 90vw;
+    padding: 14px 14px 8px;
+    border-radius: 16px;
+  }
+
+  .icons {
+    top: 10px;
+    left: 6px;
+    bottom: 40px;
+    gap: 10px 4px;
+  }
+
+  .ico { width: 62px; }
+  .ico .material-icons { font-size: 24px; }
+  .ico .lbl { font-size: 10px; }
+
+  .startmenu { width: 60%; max-width: 200px; }
+  .task { max-width: 96px; }
+  .task .t-lbl { display: none; }
+}
 
 .tbclock {
   padding: 3px 9px;

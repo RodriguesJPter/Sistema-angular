@@ -58,7 +58,7 @@ export class PerfilRpg implements AfterViewInit, OnDestroy {
 
   bio: string[] = [
     'Me chamo John. Sou formado em Análise e Desenvolvimento de Sistemas e já passei por algumas empresas como desenvolvedor. Hoje atuo como desenvolvedor front-end.',
-    'Tenho experiência com o back-end, mas é no front que mora a minha paixão — me fascina o quanto dá pra criar uma experiência incrível para o usuário. Meu objetivo é chegar no nível dos trabalhos que aparecem no Awwwards.'
+    'Tenho experiência com o back-end, mas é no front que mora a minha paixão, me fascina o quanto dá pra criar uma experiência incrível para o usuário. Meu objetivo é chegar no nível dos trabalhos que aparecem no Awwwards.'
   ];
 
   atributos: Atributo[] = [

@@ -149,3 +149,7 @@
 .steel    { background-color: #B8B8D0; }
 .dragon   { background-color: #7038F8; }
 .ice      { background-color: #98D8D8; }
+
+@media (max-width: 420px) {
+  .pokedex-moldura { width: 200px; height: 380px; padding: 12px; }
+}

@@ -43,6 +43,12 @@ export class TargetCursorComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
 
+    const semMouse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (semMouse) {
+      this.cursorRef.nativeElement.style.display = 'none';
+      return;
+    }
+
     const cursor = this.cursorRef.nativeElement;
 
     this.corners =

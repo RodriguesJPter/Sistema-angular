@@ -8,3 +8,7 @@
   padding-top: 120px;
   background-color: rgb(240, 183, 169);
 }
+
+@media (max-width: 600px) {
+  .tela-pokemon-container { padding-top: 88px; }
+}

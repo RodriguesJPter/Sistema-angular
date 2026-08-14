@@ -32,6 +32,7 @@ interface Win {
   x: number;
   y: number;
   z: number;
+  max?: boolean;
   cat?: Category;
   tech?: Tech;
 }
@@ -148,7 +149,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     {
       h: 'O stack',
       p: 'Componente standalone em Angular + TypeScript, estilizado com SCSS e ícones do ' +
-         'Material Icons. Nenhum framework de UI retrô pronto — a estética 98/2000 foi feita à mão.'
+         'Material Icons. Nenhum framework de UI retrô pronto, a estética 98/2000 foi feita à mão.'
     }
   ];
 
@@ -224,7 +225,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'folder', title: cat.name, icon: cat.icon,
-      x: 150 + n * 26, y: 24 + n * 22, z: ++this.zTop, cat
+      x: 150 + n * 26, y: 24 + n * 22, z: ++this.zTop, max: this.ehMobile(), cat
     });
   }
 
@@ -236,7 +237,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'note', title: tech.name + '.txt', icon: 'description',
-      x: 210 + n * 24, y: 40 + n * 22, z: ++this.zTop, cat, tech
+      x: 210 + n * 24, y: 40 + n * 22, z: ++this.zTop, max: this.ehMobile(), cat, tech
     });
   }
 
@@ -249,7 +250,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'perfil', title: 'Sobre mim', icon: 'person',
-      x: 90 + n * 22, y: 16 + n * 18, z: ++this.zTop
+      x: 90 + n * 22, y: 16 + n * 18, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
@@ -262,7 +263,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'contato', title: 'Contato', icon: 'mail',
-      x: 150 + n * 22, y: 30 + n * 18, z: ++this.zTop
+      x: 150 + n * 22, y: 30 + n * 18, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
@@ -275,7 +276,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'game', title: 'Game', icon: 'sports_esports',
-      x: 110 + n * 20, y: 20 + n * 16, z: ++this.zTop
+      x: 110 + n * 20, y: 20 + n * 16, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
@@ -293,7 +294,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     const n = this.windows.length;
     this.windows.push({
       id, kind: 'about', title: 'Como foi feito', icon: 'menu_book',
-      x: 150 + n * 24, y: 22 + n * 20, z: ++this.zTop
+      x: 150 + n * 24, y: 22 + n * 20, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
@@ -301,9 +302,19 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     this.focus(w);
   }
 
+  private ehMobile(): boolean {
+    return window.matchMedia('(max-width: 700px)').matches;
+  }
+
   close(id: string, ev?: Event): void {
     ev?.stopPropagation();
     this.windows = this.windows.filter(w => w.id !== id);
+  }
+
+  toggleMax(w: Win, ev?: Event): void {
+    ev?.stopPropagation();
+    w.max = !w.max;
+    this.bringToFront(w);
   }
 
   toggleStart(): void {
@@ -317,6 +328,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   startDrag(ev: PointerEvent, w: Win): void {
     if ((ev.target as HTMLElement).closest('.tb-btn')) return;
     this.focus(w);
+    if (w.max) return;
     const rect = this.screen.nativeElement.getBoundingClientRect();
     this.dragWin = w;
     this.offX = ev.clientX - rect.left - w.x;

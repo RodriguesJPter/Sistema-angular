@@ -1,8 +1,16 @@
 .three-container {
   width: 600px;
   height: 620px;
+  max-width: 100%;
   position: relative;
 }
 canvas {
   display: block;
+}
+
+@media (max-width: 900px) {
+  .three-container {
+    width: 100%;
+    height: 100%;
+  }
 }

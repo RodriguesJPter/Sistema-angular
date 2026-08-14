@@ -202,3 +202,20 @@
   .mid-center { width: 40vw; }
   .titulo text { font-size: 108px; }
 }
+
+@media (max-width: 480px) {
+  .intro { height: 116vh; }
+  .char-layer .char { height: 44vh; }
+  .char-layer { bottom: 26vh; }
+  .front-left, .front-right { width: 60vw; }
+  .titulo { top: 6vh; width: 96vw; }
+  .titulo text { font-size: 120px; }
+  .start-btn {
+    bottom: 17vh;
+    padding: 10px 26px;
+    letter-spacing: 2px;
+    box-shadow: 6px 6px 0 #35b45f;
+  }
+  .plataforma { bottom: 24vh; width: min(60vw, 300px); }
+  .onda-divisor { display: none; }
+}

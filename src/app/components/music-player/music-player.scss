@@ -40,3 +40,15 @@
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
+
+@media (max-width: 600px) {
+  .music-player {
+    position: static;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .volume-slider { width: 72px; }
+
+  .volume-icon { margin-top: 0; width: 18px; height: 18px; }
+}

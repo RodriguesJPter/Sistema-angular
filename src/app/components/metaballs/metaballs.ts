@@ -149,7 +149,6 @@ export class MetaballsComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         float total = m1 + m2;
 
-        // ===== COR FINAL =====
         vec3 cFinal = vec3(0.0);
 
         if (total > 0.0) {
@@ -158,7 +157,6 @@ export class MetaballsComponent implements AfterViewInit, OnChanges, OnDestroy {
           cFinal = iColor * alpha1 + iCursorColor * alpha2;
         }
 
-        // ===== CORTE LIMPO (SEM SOMBRA) =====
         float threshold = 1.2;
 
         if (total > threshold) {

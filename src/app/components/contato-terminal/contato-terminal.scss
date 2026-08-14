@@ -126,3 +126,10 @@
 }
 
 .line.end { margin-top: 8px; }
+
+@media (max-width: 600px) {
+  .contato-wrap { padding: 40px 12px 60px; }
+  .term-body { font-size: 17px; padding: 16px 14px 20px; }
+  .term-bar .tname { font-size: 14px; }
+  .contato { grid-template-columns: 88px 1fr; gap: 6px; }
+}

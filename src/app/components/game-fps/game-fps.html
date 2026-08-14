@@ -1,9 +1,17 @@
-<div class="game" tabindex="0" (pointerdown)="focar()" (mouseleave)="desfocar()">
-  <canvas #cv class="tela" (blur)="desfocar()"></canvas>
-  <button class="reset" (click)="reiniciar(); $event.stopPropagation()">reiniciar</button>
-  <button class="cfg" (click)="debug = !debug; $event.stopPropagation()">&#9881;</button>
+<div class="game" tabindex="0" (pointerdown)="focar()" (mouseleave)="desfocar()" (contextmenu)="$event.preventDefault()">
+  <canvas #cv class="tela" (mousedown)="botao($event)" (blur)="desfocar()"></canvas>
+  <button class="reset" *ngIf="iniciado" (click)="reiniciar(); $event.stopPropagation()">reiniciar</button>
+
+  <div class="menu" *ngIf="!iniciado && !debug && !doc" (pointerdown)="$event.stopPropagation()">
+    <div class="menu-title">UNHOLY</div>
+    <div class="menu-sub">raycaster // prototipo</div>
+    <button class="menu-btn" (click)="iniciar()">iniciar</button>
+    <button class="menu-btn" (click)="debug = true">configuracao</button>
+    <button class="menu-btn" (click)="toggleDoc()">como foi feito</button>
+  </div>
 
   <div class="painel" *ngIf="debug" (pointerdown)="$event.stopPropagation()">
+    <button class="painel-voltar" (click)="debug = false">&#8249; voltar</button>
     <div class="abas">
       <button [class.on]="alvo === 'arma'" (click)="alvo = 'arma'">arma</button>
       <button [class.on]="alvo === 'espada'" (click)="alvo = 'espada'">espada</button>
@@ -22,5 +30,47 @@
       <label>xscale <input type="range" min="0.3" max="2" step="0.01" [value]="swScaleX" (input)="swScaleX = num($event)"><b>{{ swScaleX }}</b></label>
       <label>yscale <input type="range" min="0.3" max="2" step="0.01" [value]="swScaleY" (input)="swScaleY = num($event)"><b>{{ swScaleY }}</b></label>
     </ng-container>
+  </div>
+
+  <div class="doc" *ngIf="doc" (pointerdown)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()">
+    <div class="doc-top">
+      <span>DOC_TECNICO :: como o jogo foi feito</span>
+      <button (click)="toggleDoc(); $event.stopPropagation()">fechar ✕</button>
+    </div>
+    <div class="doc-body">
+      <p class="lead">Este mini-Doom roda 100% em um &lt;canvas&gt; 2D dentro de um componente Angular. Não usa engine nem WebGL: é um raycaster escrito à mão. Abaixo, o passo a passo de como foi construído.</p>
+
+      <h3>1. O motor de raycasting</h3>
+      <p>O mapa é uma grade 16×16 de caracteres, onde <code>#</code> é parede e <code>.</code> é chão. Para cada uma das 260 colunas da tela, lanço um raio a partir do jogador e ando por ele com o algoritmo <b>DDA</b> (Digital Differential Analyzer), pulando de célula em célula até bater numa parede. A distância perpendicular dessa batida define a altura da fatia de parede desenhada naquela coluna, quanto mais perto, mais alta. Isso cria a ilusão de 3D com matemática 2D.</p>
+
+      <h3>2. Paredes, chão e céu</h3>
+      <p>Cada coluna vira um retângulo de 1px de largura. O sombreamento escurece a parede conforme a distância e diferencia lados N/S de L/O, dando volume. Céu e chão são dois preenchimentos sólidos divididos no horizonte.</p>
+
+      <h3>3. Sprites (inimigos, itens, bola de fogo)</h3>
+      <p>Tudo que não é parede é um <b>billboard</b>: uma imagem sempre virada pra câmera. Projeto a posição do mundo para a tela, calculo tamanho pela distância e desenho coluna a coluna. Um <b>z-buffer</b> (guardado no passo das paredes) decide, por coluna, se o sprite fica na frente ou é escondido pela parede.</p>
+
+      <h3>4. Preparação das sprites</h3>
+      <p>As artes originais (GIFs) foram recortadas por script: para a arma, alinhei todo frame pelo <b>pulso</b> (detectando o tom de pele) e padronizei o tamanho, pra andar/tiro/espada ficarem do mesmo tamanho e no mesmo lugar. A espada foi mantida em quadro cheio pra não cortar a lâmina. Também gerei cópias <b>vermelhas</b> de cada frame do inimigo para o flash de dano.</p>
+
+      <h3>5. Animações em máquina de estados</h3>
+      <p>A arma tem estados <code>idle / shoot / sword</code>. O golpe é uma sequência em 3 fases: abaixa a arma → giro da espada (com o dano no frame da descida) → arma volta. O inimigo tem <code>walk / attack / dying / dead</code>, cada um com sua tira de frames.</p>
+
+      <h3>6. Mira e dano</h3>
+      <p>O "+" no centro é a mira. Um tiro/golpe só acerta o inimigo se ele estiver <b>sob a mira</b>: comparo o ângulo até o inimigo com a largura angular dele naquela distância (perto é fácil, longe exige precisão). Havendo vários alinhados, acerta o mais próximo.</p>
+
+      <h3>7. Inimigos em ondas</h3>
+      <p>Em vez de um inimigo, há um array. Cada um persegue o jogador, ataca de perto e lança bola de fogo. Quando a onda inteira é derrotada, a próxima nasce automaticamente, um pouco maior e mais rápida, o jogo não acaba.</p>
+
+      <h3>8. Itens de cura e munição</h3>
+      <p>Coração (animado) devolve vida; caixa devolve munição. Ficam no chão como billboards e são coletados por proximidade. Ao pegar, reaparecem em outro ponto do mapa depois de alguns segundos.</p>
+
+      <h3>9. Controles</h3>
+      <p>Câmera pelo mouse (via <b>Pointer Lock</b>) ou pelas setas. W/S andam pra frente/trás e A/D fazem strafe lateral. Tiro no clique esquerdo ou espaço; espada no clique direito ou F.</p>
+
+      <h3>10. Detalhes de polimento</h3>
+      <p>Balanço de câmera (head-bob) ao andar, flash vermelho ao dano, painel de ajuste fino da arma (x/y/escala, estilo GameMaker) e o loop rodando fora da zona do Angular (<code>runOutsideAngular</code>) para performance.</p>
+
+      <p class="fim">feito do zero em TypeScript + Canvas 2D, sem bibliotecas de jogo.</p>
+    </div>
   </div>
 </div>

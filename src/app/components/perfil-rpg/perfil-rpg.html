@@ -8,7 +8,7 @@
       <div class="portrait-frame">
         <div class="portrait" #port (pointerdown)="onDown($event)">
           <img class="p-img p-real" src="assets/imagens/perfil_real.jpg" alt="John" draggable="false">
-          <img class="p-img p-char" src="assets/imagens/perfil_char.jpg" alt="John — personagem"
+          <img class="p-img p-char" src="assets/imagens/perfil_char.jpg" alt="John, personagem"
                draggable="false" [style.clip-path]="'inset(0 ' + (100 - pos) + '% 0 0)'">
 
           <div class="p-handle" [style.left.%]="pos"><span class="grip"></span></div>
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="foot">— ainda em busca do próximo build —</div>
+    <div class="foot">ainda em busca do próximo build</div>
 
   </div>
 </section>

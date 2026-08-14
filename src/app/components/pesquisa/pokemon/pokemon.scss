@@ -232,6 +232,16 @@
   }
 }
 
+@media (max-width: 480px) {
+  .pokebola-top { padding: 1.2rem 1rem; }
+  .pokebola-bottom { padding: 1rem 0.7rem; }
+  .pokebola-top .logo-container .pokemon-logo { height: 50px; }
+  .pokemon-table th,
+  .pokemon-table td { padding: 8px 10px; font-size: 13px; }
+  .widget-menu { top: 62px; left: 10px; padding: 6px; gap: 6px; }
+  .widget-menu button { padding: 5px 9px; font-size: 12px; }
+}
+
 .tipo-badge {
   padding: 4px 8px;
   border-radius: 4px;

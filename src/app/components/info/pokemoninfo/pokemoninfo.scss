@@ -438,3 +438,15 @@ mat-divider {
 .pokemon-card.revealing {
   transform: scale(1);
 }
+
+@media (max-width: 600px) {
+  .card-3d-wrapper {
+    margin-top: 90px !important;
+    padding: 0 10px;
+  }
+
+  .pokemon-card-container {
+    margin: 14px auto;
+    padding: 12px;
+  }
+}

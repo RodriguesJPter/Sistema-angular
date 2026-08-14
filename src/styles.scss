@@ -19,6 +19,12 @@ body {
   padding: 0% !important;
 }
 
+body { -webkit-text-size-adjust: 100%; }
+
+@media (hover: none) and (pointer: coarse) {
+  app-target-cursor { display: none !important; }
+}
+
 html {
   background: #1A2517;
   overflow-x: hidden;
