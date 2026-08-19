@@ -192,17 +192,14 @@ export class GameFps implements AfterViewInit, OnDestroy {
   }
 
   private onKey = (e: KeyboardEvent) => {
-    if (!this.ativo) return;
     const k = e.key.toLowerCase();
+    if (e.type === 'keyup') { this.keys[k] = false; return; }
+    if (!this.ativo) return;
     const jogo = ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', ' ', 'f'];
     if (jogo.includes(k)) e.preventDefault();
-    if (e.type === 'keydown') {
-      this.keys[k] = true;
-      if (k === ' ') this.atirar();
-      if (k === 'f') this.espada();
-    } else {
-      this.keys[k] = false;
-    }
+    this.keys[k] = true;
+    if (k === ' ') this.atirar();
+    if (k === 'f') this.espada();
   };
 
   private onMouse = (e: MouseEvent) => {
@@ -225,6 +222,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
 
   focar(): void {
     if (!this.iniciado || this.player.hp <= 0 || this.doc) return;
+    this.keys = {};
     this.ativo = true;
     this.cv.nativeElement.focus();
     try {

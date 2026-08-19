@@ -10,8 +10,8 @@ import {
 
 import { Router } from '@angular/router';
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 @Component({
   selector: 'app-coin',
@@ -85,45 +85,45 @@ fallSpeed = 4;
 
   private loadModel(): void {
 
-    const mtlLoader = new MTLLoader();
-    mtlLoader.setPath('assets/modelos/coin/');
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('assets/draco/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
 
-    mtlLoader.load(
-      'Meshy_AI_Golden_Hare_Coin_0303130106_texture.mtl',
-      (materials) => {
+    loader.load(
+      'assets/modelos/coin/coin.glb',
+      (gltf) => {
 
-        materials.preload();
+        const object = gltf.scene;
 
-        const objLoader = new OBJLoader();
-        objLoader.setMaterials(materials);
-        objLoader.setPath('assets/modelos/coin/');
-
-        objLoader.load(
-          'Meshy_AI_Golden_Hare_Coin_0303130106_texture.obj',
-          (object) => {
-
-            this.model = object;
-
-            this.pivot = new THREE.Object3D();
-            this.scene.add(this.pivot);
-
-            const box = new THREE.Box3().setFromObject(this.model);
-            const center = new THREE.Vector3();
-            box.getCenter(center);
-            this.model.position.sub(center);
-
-            this.model.rotation.y = Math.PI;
-
-            this.pivot.add(this.model);
-
-            this.pivot.position.set(8, 2, 0);
-
-            this.pivot.rotation.z = Math.PI / 2;
-
-            this.modelReady = true;
-            this.ready.emit();
+        object.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (m.isMesh) {
+            const mat = m.material as THREE.MeshStandardMaterial;
+            if (mat) { mat.metalness = 0.2; mat.roughness = 0.75; }
           }
-        );
+        });
+
+        this.model = object;
+
+        this.pivot = new THREE.Object3D();
+        this.scene.add(this.pivot);
+
+        const box = new THREE.Box3().setFromObject(this.model);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+        this.model.position.sub(center);
+
+        this.model.rotation.y = Math.PI;
+
+        this.pivot.add(this.model);
+
+        this.pivot.position.set(8, 2, 0);
+
+        this.pivot.rotation.z = Math.PI / 2;
+
+        this.modelReady = true;
+        this.ready.emit();
       }
     );
   }

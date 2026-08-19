@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 @Component({
   selector: 'app-angel3d',
@@ -38,15 +38,25 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
   private mouseOffsetX = -0.670;
   private mouseOffsetY = 0.070;
 
+  private io?: IntersectionObserver;
+
   ngAfterViewInit(): void {
-    this.initThree();
-    this.animate();
     this.darkSectionElement = document.querySelector('.dark-section') as HTMLElement;
+    const alvo = this.darkSectionElement || this.container.nativeElement;
+    this.io = new IntersectionObserver((entries) => {
+      if (entries.some(e => e.isIntersecting)) {
+        this.io?.disconnect();
+        this.initThree();
+        this.animate();
+      }
+    }, { rootMargin: '200px' });
+    this.io.observe(alvo);
   }
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.animationId);
-    this.renderer.dispose();
+    this.io?.disconnect();
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    this.renderer?.dispose();
   }
 
   private initThree(): void {
@@ -84,19 +94,23 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
     directionalLight.position.set(5, 5, 5);
     this.scene.add(directionalLight);
 
-    const mtlLoader = new MTLLoader();
-    mtlLoader.setPath('assets/modelos/angel_gun/');
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('assets/draco/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
 
-    mtlLoader.load('Meshy_AI_Winged_Revolver_0303131833_texture.mtl', (materials) => {
+    loader.load('assets/modelos/angel_gun/revolver.glb', (gltf) => {
 
-      materials.preload();
-
-      const objLoader = new OBJLoader();
-      objLoader.setMaterials(materials);
-      objLoader.setPath('assets/modelos/angel_gun/');
-      objLoader.load('Meshy_AI_Winged_Revolver_0303131833_texture.obj', (object) => {
-
+      const object = gltf.scene;
       object.scale.set(0.5, 0.5, 0.5);
+
+      object.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.isMesh) {
+          const mat = m.material as THREE.MeshStandardMaterial;
+          if (mat) { mat.metalness = 0.1; mat.roughness = 0.85; }
+        }
+      });
 
       const box = new THREE.Box3().setFromObject(object);
       const center = box.getCenter(new THREE.Vector3());
@@ -120,7 +134,6 @@ export class Angel3dComponent implements AfterViewInit, OnDestroy {
       this.camera.position.set(0, 0, cameraZ);
       this.camera.lookAt(0, 0, 0);
 
-    });
     });
 
     window.addEventListener('resize', () => {
