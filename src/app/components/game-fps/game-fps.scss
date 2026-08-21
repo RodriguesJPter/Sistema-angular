@@ -20,6 +20,150 @@
   display: block;
 }
 
+// ===== jogo em tela cheia (celular, paisagem) =====
+.game.cheia {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  width: 100vw;
+  height: 100vh;
+  touch-action: none;
+}
+
+.game.cheia .tela { touch-action: none; }
+
+.sair-jogo {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 15px;
+  color: #eafff0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #2c5a3c;
+  cursor: pointer;
+  touch-action: none;
+}
+
+// aviso "gire o celular"
+.girar {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #06100a;
+  color: #cdefd6;
+  font-family: monospace;
+  text-align: center;
+  padding: 20px;
+}
+
+.girar-sair {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 13px;
+  color: #eafff0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #2c5a3c;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.girar-ic {
+  font-size: 54px;
+  color: #7CF09A;
+  animation: girar-anim 1.6s ease-in-out infinite;
+}
+
+@keyframes girar-anim {
+  0%, 100% { transform: rotate(-18deg); }
+  50% { transform: rotate(72deg); }
+}
+
+// controles de toque
+.ctrl {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.ctrl .dpad,
+.ctrl .acoes { pointer-events: auto; }
+
+.dpad {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: 138px;
+  height: 138px;
+}
+
+.dpad .d {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #eafff0;
+  background: rgba(20, 30, 22, 0.55);
+  border: 1px solid rgba(124, 240, 154, 0.5);
+  touch-action: none;
+  user-select: none;
+}
+
+.dpad .up { top: 0; left: 46px; }
+.dpad .down { bottom: 0; left: 46px; }
+.dpad .left { left: 0; top: 46px; }
+.dpad .right { right: 0; top: 46px; }
+
+.acoes {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.acoes .ab {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #06120a;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.acoes .tiro {
+  background: rgba(124, 240, 154, 0.85);
+  border: 2px solid #7CF09A;
+}
+
+.acoes .espada {
+  width: 62px;
+  height: 62px;
+  color: #eafff0;
+  background: rgba(45, 200, 110, 0.35);
+  border: 2px solid #2c5a3c;
+}
+
 .reset {
   position: absolute;
   top: 4px;

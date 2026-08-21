@@ -1,6 +1,31 @@
-<div class="game" tabindex="0" (pointerdown)="focar()" (mouseleave)="desfocar()" (contextmenu)="$event.preventDefault()">
-  <canvas #cv class="tela" (mousedown)="botao($event)" (blur)="desfocar()"></canvas>
+<div class="game" tabindex="0" [class.cheia]="cheia" (pointerdown)="focar()" (mouseleave)="desfocar()" (contextmenu)="$event.preventDefault()">
+  <canvas #cv class="tela" (mousedown)="botao($event)" (blur)="desfocar()"
+          (pointerdown)="lookStart($event)" (pointermove)="lookMove($event)"
+          (pointerup)="lookEnd($event)" (pointercancel)="lookEnd($event)"></canvas>
   <button class="reset" *ngIf="iniciado" (click)="reiniciar(); $event.stopPropagation()">reiniciar</button>
+
+  <ng-container *ngIf="toque && iniciado">
+    <div class="girar" *ngIf="retrato" (pointerdown)="$event.stopPropagation()">
+      <button class="girar-sair" (pointerdown)="sairJogo(); $event.stopPropagation()">✕</button>
+      <div class="girar-ic">⟳</div>
+      <p>gire o celular para jogar</p>
+    </div>
+
+    <button class="sair-jogo" *ngIf="cheia" (pointerdown)="sairJogo(); $event.stopPropagation()">✕</button>
+
+    <div class="ctrl" *ngIf="cheia">
+      <div class="dpad">
+        <button class="d up" (pointerdown)="mover('w', true, $event)" (pointerup)="mover('w', false, $event)" (pointercancel)="mover('w', false, $event)" (pointerleave)="mover('w', false, $event)">▲</button>
+        <button class="d left" (pointerdown)="mover('a', true, $event)" (pointerup)="mover('a', false, $event)" (pointercancel)="mover('a', false, $event)" (pointerleave)="mover('a', false, $event)">◄</button>
+        <button class="d right" (pointerdown)="mover('d', true, $event)" (pointerup)="mover('d', false, $event)" (pointercancel)="mover('d', false, $event)" (pointerleave)="mover('d', false, $event)">►</button>
+        <button class="d down" (pointerdown)="mover('s', true, $event)" (pointerup)="mover('s', false, $event)" (pointercancel)="mover('s', false, $event)" (pointerleave)="mover('s', false, $event)">▼</button>
+      </div>
+      <div class="acoes">
+        <button class="ab espada" (pointerdown)="btnEspada($event)">ESP</button>
+        <button class="ab tiro" (pointerdown)="btnTiro($event)">TIRO</button>
+      </div>
+    </div>
+  </ng-container>
 
   <div class="menu" *ngIf="!iniciado && !debug && !doc" (pointerdown)="$event.stopPropagation()">
     <div class="menu-title">UNHOLY</div>
@@ -65,7 +90,7 @@
       <p>Coração (animado) devolve vida; caixa devolve munição. Ficam no chão como billboards e são coletados por proximidade. Ao pegar, reaparecem em outro ponto do mapa depois de alguns segundos.</p>
 
       <h3>9. Controles</h3>
-      <p>Câmera pelo mouse (via <b>Pointer Lock</b>) ou pelas setas. W/S andam pra frente/trás e A/D fazem strafe lateral. Tiro no clique esquerdo ou espaço; espada no clique direito ou F.</p>
+      <p>No computador: câmera pelo mouse (via <b>Pointer Lock</b>) ou pelas setas. W/S andam pra frente/trás e A/D fazem strafe lateral. Tiro no clique esquerdo ou espaço; espada no clique direito ou F. No <b>celular</b>: controles de toque na tela (direcional, botões de tiro/espada e arrastar pra virar a câmera), rodando em tela cheia no modo paisagem.</p>
 
       <h3>10. Detalhes de polimento</h3>
       <p>Balanço de câmera (head-bob) ao andar, flash vermelho ao dano, painel de ajuste fino da arma (x/y/escala, estilo GameMaker) e o loop rodando fora da zona do Angular (<code>runOutsideAngular</code>) para performance.</p>

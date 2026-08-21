@@ -4,7 +4,8 @@ import {
   ViewChild,
   AfterViewInit,
   OnDestroy,
-  HostListener
+  HostListener,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PerfilRpg } from '../perfil-rpg/perfil-rpg';
@@ -147,6 +148,22 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
          'clara e outra escura conforme o fundo.'
     },
     {
+      h: 'No celular vira um telefone',
+      p: 'É o mesmo componente, mas por media query no celular o computador se transforma ' +
+         'num celular touchscreen antigo: a moldura do monitor vira o corpo do telefone (com ' +
+         'alto-falante e botão home) e a tela gira para o modo retrato. O desktop vira um "SO" ' +
+         'de celular: barra de status no topo (relógio, sinal, wi-fi e bateria), os ícones viram ' +
+         'blocos de app numa home screen e some a barra Iniciar. Os apps abrem em tela cheia com ' +
+         'um cabeçalho escuro e uma seta de voltar, no lugar da janela arrastável.'
+    },
+    {
+      h: 'O jogo no celular',
+      p: 'O game (um raycaster estilo Doom feito à mão em canvas) ganha controles de toque: um ' +
+         'direcional para andar, botões de tiro e espada, e arrastar o dedo para virar a câmera. ' +
+         'Ele exige o modo paisagem — em pé, aparece um aviso "gire o celular" dentro da própria ' +
+         'tela do telefone; deitado, o jogo ocupa a tela inteira com os controles.'
+    },
+    {
       h: 'O stack',
       p: 'Componente standalone em Angular + TypeScript, estilizado com SCSS e ícones do ' +
          'Material Icons. Nenhum framework de UI retrô pronto, a estética 98/2000 foi feita à mão.'
@@ -160,6 +177,8 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   private booted = false;
   private clockTimer?: ReturnType<typeof setInterval>;
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
   ngAfterViewInit(): void {
     this.tick();
     this.clockTimer = setInterval(() => this.tick(), 15000);
@@ -169,11 +188,12 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
         if (e.isIntersecting && !this.booted) {
           this.booted = true;
           this.boot();
+          this.cdr.markForCheck();
         }
       });
-    }, { threshold: 0.35 });
+    }, { threshold: 0.25 });
 
-    this.io.observe(this.root.nativeElement);
+    this.io.observe(this.screen.nativeElement);
   }
 
   ngOnDestroy(): void {
@@ -184,6 +204,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
   private tick(): void {
     const d = new Date();
     this.clock = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    this.cdr.markForCheck();
   }
 
   boot(): void {
@@ -192,6 +213,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     this.startOpen = false;
     this.windows = [];
     this.bootProgress = 0;
+    this.cdr.markForCheck();
 
     const t = setInterval(() => {
       this.bootProgress += Math.random() * 16 + 7;
@@ -201,8 +223,10 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
         setTimeout(() => {
           this.booting = false;
           this.powered = true;
+          this.cdr.markForCheck();
         }, 550);
       }
+      this.cdr.markForCheck();
     }, 230);
   }
 
@@ -216,6 +240,23 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     w.z = this.zTop;
   }
 
+  // posição inicial centralizada no monitor (com leve cascata pra várias janelas)
+  private centro(n: number, w: number, h: number): { x: number; y: number } {
+    // no modo tela cheia, abre em cascata natural (não centraliza)
+    if (this.telaCheia) {
+      const c = n % 8;
+      return { x: 44 + c * 32, y: 30 + c * 30 };
+    }
+    const el = this.screen?.nativeElement;
+    const sw = el ? el.clientWidth : 900;
+    const sh = el ? el.clientHeight : 620;
+    const casc = (n % 5) * 22;
+    const x = Math.round(Math.max(8, Math.min((sw - w) / 2 + casc, sw - 90)));
+    // centraliza na área acima da taskbar (32px), com leve viés pra cima
+    const y = Math.round(Math.max(8, Math.min((sh - 32 - h) / 2 - 8 + casc, sh - 60)));
+    return { x, y };
+  }
+
   openFolder(cat: Category): void {
     this.startOpen = false;
     const id = 'f-' + cat.id;
@@ -223,9 +264,10 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     if (found) { this.focus(found); return; }
 
     const n = this.windows.length;
+    const p = this.centro(n, 230, 300);
     this.windows.push({
       id, kind: 'folder', title: cat.name, icon: cat.icon,
-      x: 150 + n * 26, y: 24 + n * 22, z: ++this.zTop, max: this.ehMobile(), cat
+      x: p.x, y: p.y, z: ++this.zTop, max: this.ehMobile(), cat
     });
   }
 
@@ -235,9 +277,10 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     if (found) { this.focus(found); return; }
 
     const n = this.windows.length;
+    const p = this.centro(n, 264, 260);
     this.windows.push({
       id, kind: 'note', title: tech.name + '.txt', icon: 'description',
-      x: 210 + n * 24, y: 40 + n * 22, z: ++this.zTop, max: this.ehMobile(), cat, tech
+      x: p.x, y: p.y, z: ++this.zTop, max: this.ehMobile(), cat, tech
     });
   }
 
@@ -261,9 +304,10 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     if (found) { this.focus(found); return; }
 
     const n = this.windows.length;
+    const p = this.centro(n, 470, 430);
     this.windows.push({
       id, kind: 'contato', title: 'Contato', icon: 'mail',
-      x: 150 + n * 22, y: 30 + n * 18, z: ++this.zTop, max: this.ehMobile()
+      x: p.x, y: p.y, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
@@ -274,15 +318,101 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     if (found) { this.focus(found); return; }
 
     const n = this.windows.length;
+    const p = this.centro(n, 470, 320);
     this.windows.push({
       id, kind: 'game', title: 'Game', icon: 'sports_esports',
-      x: 110 + n * 20, y: 20 + n * 16, z: ++this.zTop, max: this.ehMobile()
+      x: p.x, y: p.y, z: ++this.zTop, max: this.ehMobile()
     });
   }
 
   toggleCrt(ev?: Event): void {
     ev?.stopPropagation();
     this.crtLigado = !this.crtLigado;
+  }
+
+  telaCheia = false;
+  fechando = false;
+  crtH = 0;
+  ml = 0;
+  mt = 0;
+  efx = 0.4;
+  efy = 0.5;
+  private scrollAntes = 0;
+
+  private travarBody(y: number): void {
+    document.body.style.position = 'fixed';
+    document.body.style.top = -y + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+  private destravarBody(y: number): void {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, y);
+  }
+
+  private setTelaCheia(v: boolean): void {
+    if (v) {
+      this.scrollAntes = window.scrollY;
+      this.fechando = false;
+      this.telaCheia = true;
+      this.travarBody(this.scrollAntes);
+      this.cdr.markForCheck();
+    } else {
+      if (!this.telaCheia || this.fechando) return;
+      this.fechando = true;
+      this.cdr.markForCheck();
+      const y = this.scrollAntes;
+      setTimeout(() => {
+        this.telaCheia = false;
+        this.fechando = false;
+        this.destravarBody(y);
+        this.cdr.markForCheck();
+        // reorganiza só depois do monitor voltar ao tamanho normal
+        setTimeout(() => { this.reorganizarJanelas(); this.cdr.markForCheck(); }, 60);
+      }, 380);
+    }
+  }
+
+  // ao voltar do modo tela cheia, recentraliza as janelas dentro do monitor
+  private reorganizarJanelas(): void {
+    const el = this.screen?.nativeElement;
+    if (!el) return;
+    const sw = el.clientWidth, sh = el.clientHeight;
+    let i = 0;
+    for (const w of this.windows) {
+      if (w.max || w.kind === 'perfil') continue;
+      const bx = Math.max(8, (sw - 280) / 2);
+      const by = Math.max(8, (sh - 32 - 300) / 2 - 8);
+      w.x = Math.round(Math.min(Math.max(8, bx + i * 22), Math.max(8, sw - 90)));
+      w.y = Math.round(Math.min(Math.max(8, by + i * 20), Math.max(8, sh - 60)));
+      i++;
+    }
+  }
+
+  toggleTelaCheia(ev?: Event): void {
+    ev?.stopPropagation();
+    if (!this.telaCheia && ev) {
+      const crt = (ev.currentTarget as HTMLElement).closest('.crt') as HTMLElement | null;
+      if (crt) {
+        const cr = crt.getBoundingClientRect();
+        this.crtH = Math.round(cr.height);
+        this.ml = Math.round(cr.left);
+        this.mt = Math.round(cr.top);
+        this.efx = +(cr.width / window.innerWidth).toFixed(4);
+        this.efy = +(cr.height / window.innerHeight).toFixed(4);
+      }
+    }
+    this.setTelaCheia(!this.telaCheia);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEsc(): void {
+    if (this.telaCheia) this.setTelaCheia(false);
   }
 
   openAbout(): void {
@@ -292,9 +422,10 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
     if (found) { this.focus(found); return; }
 
     const n = this.windows.length;
+    const p = this.centro(n, 322, 320);
     this.windows.push({
       id, kind: 'about', title: 'Como foi feito', icon: 'menu_book',
-      x: 150 + n * 24, y: 22 + n * 20, z: ++this.zTop, max: this.ehMobile()
+      x: p.x, y: p.y, z: ++this.zTop, max: this.ehMobile()
     });
   }
 

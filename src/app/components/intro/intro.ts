@@ -1,6 +1,5 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MusicService } from '../../services/music.service';
 
 @Component({
   selector: 'app-intro',
@@ -9,23 +8,18 @@ import { MusicService } from '../../services/music.service';
   templateUrl: './intro.html',
   styleUrls: ['./intro.scss']
 })
-export class Intro implements OnInit, OnDestroy {
+export class Intro implements OnInit {
 
   px = 0;
   py = 0;
   private semMouse = false;
 
-  constructor(private music: MusicService) {}
+  @Output() avancar = new EventEmitter<void>();
 
   ngOnInit(): void {
-
     this.semMouse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    document.body.style.overflow = 'hidden';
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
-  }
-
-  ngOnDestroy(): void {
-    document.body.style.overflow = '';
   }
 
   @HostListener('window:mousemove', ['$event'])
@@ -36,13 +30,6 @@ export class Intro implements OnInit, OnDestroy {
   }
 
   start(): void {
-
-    this.music.resume();
-    document.body.style.overflow = '';
-    const intro = document.querySelector('.intro') as HTMLElement | null;
-    const top = intro ? intro.offsetHeight : window.innerHeight;
-    requestAnimationFrame(() =>
-      window.scrollTo({ top, behavior: 'smooth' })
-    );
+    this.avancar.emit();
   }
 }

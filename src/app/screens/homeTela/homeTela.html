@@ -1,88 +1,11 @@
-<app-intro></app-intro>
+<app-intro class="pagina pagina-intro" (avancar)="avancarPara(1)"></app-intro>
 
-<section class="home">
-
+<section class="pagina pagina-vazia">
   <div class="hero">
     <h1>Bem vindo a UNHOLY studio</h1>
   </div>
+</section>
 
-  <div class="content-box">
-
-    <p class="descricao">
-      Esta página foi criada com o objetivo de centralizar e organizar minhas
-      iniciativas de desenvolvimento, funcionando tanto como espaço de
-      aprendizado quanto vitrine para projetos em andamento.
-    </p>
-
-    <div class="objetivos">
-
-      <div class="card">
-        <h2>Objetivo 1</h2>
-        <p>
-          Servir como ambiente de estudo pessoal, aplicando na prática
-          conceitos que venho aprendendo.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Objetivo 2</h2>
-        <p>
-          Documentar o desenvolvimento dos projetos e acompanhar a evolução
-          técnica e criativa.
-        </p>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="wave-divider">
-    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-      <path
-        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-        class="shape-fill">
-      </path>
-    </svg>
-  </div>
-  <app-target-cursor
-    [activeArea]="'.dark-section'"
-    [dotOffsetX]="0"
-    [dotOffsetY]="-0.3">
-  </app-target-cursor>
-
-  <div class="dark-section">
-
-    <div class="componente-3d">
-      <app-angel3d></app-angel3d>
-    </div>
-
-    <div class="titulo-tech">
-        <h1> Tecnologias usadas </h1>
-        <p class="sub-tech">as ferramentas e bibliotecas que usei para construir este site, as minhas habilidades completas estão no computador logo abaixo.</p>
-    </div>
-
-    <div class="tech-card tech-1 cursor-target">
-      <h3>Angular</h3>
-      <p>Framework principal da aplicação, responsável por toda a arquitetura SPA.</p>
-    </div>
-
-    <div class="tech-card tech-2 cursor-target">
-      <h3>GSAP</h3>
-      <p>Biblioteca utilizada para animações avançadas e controle fino de movimento.</p>
-    </div>
-
-    <div class="tech-card tech-3 cursor-target">
-      <h3>Three.js</h3>
-      <p>Renderização 3D e manipulação de objetos no ambiente interativo.</p>
-    </div>
-
-    <div class="tech-card tech-4 cursor-target">
-      <h3>SCSS</h3>
-      <p>Organização e escalabilidade do estilo com variáveis e modularização.</p>
-    </div>
-
-  </div>
-
+<section class="pagina pagina-pc">
   <app-skills-pc></app-skills-pc>
-
 </section>

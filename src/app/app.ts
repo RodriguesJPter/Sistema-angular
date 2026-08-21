@@ -1,26 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MenuPrincipal } from './components/menu/menu-principal/menu-principal';
-import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { MusicService } from './services/music.service';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
-    MenuPrincipal,
-    MatIconModule,
     RouterOutlet,
   ],
   template: `
-  <app-menu-principal *ngIf="showMenu"></app-menu-principal>
-
   <div class="main-content">
     <router-outlet></router-outlet>
-
   </div>
   `,
   styles: [`
@@ -30,30 +21,6 @@ import { MusicService } from './services/music.service';
       min-height: 100vh;
       padding: 0px;
     }
-
-    .content {
-      flex: 1;
-      padding: 60px;
-      margin-top: 160px;
-    }
   `]
-
 })
-export class App {
-
-  showMenu = true;
-
-  constructor(
-    private router: Router,
-    private music: MusicService
-  ) {
-
-    this.router.events
-    .pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe(() => {
-
-      this.showMenu = true;
-      this.music.resume();
-    });
-  }
-}
+export class App {}

@@ -5,7 +5,8 @@
     <p>clique nos ícones para explorar, arraste as janelas e abra o menu iniciar</p>
   </div>
 
-  <div class="crt">
+  <div class="crt" [class.tela-cheia]="telaCheia" [class.fechando]="fechando"
+       [style.--ml]="ml + 'px'" [style.--mt]="mt + 'px'" [style.--efx]="efx" [style.--efy]="efy">
     <div class="crt-screen" #screen>
 
       <div class="boot" *ngIf="booting">
@@ -18,6 +19,15 @@
       </div>
 
       <div class="desktop" *ngIf="powered" (pointerdown)="startOpen = false">
+
+        <div class="statusbar">
+          <span class="sb-time">{{ clock }}</span>
+          <span class="sb-icons">
+            <span class="material-icons">network_cell</span>
+            <span class="material-icons">wifi</span>
+            <span class="material-icons">battery_full</span>
+          </span>
+        </div>
 
         <div class="icons">
           <div class="ico" *ngFor="let c of categories" (click)="openFolder(c)">
@@ -147,6 +157,8 @@
     <div class="crt-bezel">
       <span class="brand">JohnDows 2000</span>
       <div class="bezel-ctrl">
+        <button class="crt-btn" (click)="toggleTelaCheia($event)"
+                [title]="telaCheia ? 'Sair da tela cheia' : 'Enquadrar na tela toda'">{{ telaCheia ? '✕' : '⛶' }}</button>
         <button class="crt-btn" [class.off]="!crtLigado" (click)="toggleCrt($event)"
                 title="Efeito de tela (CRT)">CRT</button>
         <span class="led" [class.led-off]="!crtLigado"></span>
@@ -154,6 +166,13 @@
     </div>
   </div>
 
+  <div class="crt-espaco" *ngIf="telaCheia" [style.height.px]="crtH" aria-hidden="true"></div>
+
   <div class="crt-stand"></div>
+
+  <div class="mesa" aria-hidden="true">
+    <div class="mesa-tampo"></div>
+    <div class="mesa-frente"></div>
+  </div>
 
 </section>

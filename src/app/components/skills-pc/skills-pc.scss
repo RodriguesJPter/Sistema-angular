@@ -52,8 +52,8 @@ $navy2: #1084d0;
 
 .crt {
   position: relative;
-  z-index: 1;
-  width: min(760px, 94vw);
+  z-index: 2;
+  width: min(680px, 90vw, 76vh);
   background: linear-gradient(160deg, #d7d0bd, #b8b09a 60%, #9c957f);
   border-radius: 22px;
   padding: 26px 26px 12px;
@@ -144,7 +144,7 @@ $navy2: #1084d0;
 
 .crt-stand {
   position: relative;
-  z-index: 0;
+  z-index: 1;
   width: 170px;
   height: 46px;
   margin-top: -24px;
@@ -152,6 +152,102 @@ $navy2: #1084d0;
   clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
   border-radius: 0 0 12px 12px;
   box-shadow: 0 18px 24px -12px rgba(0, 0, 0, 0.65);
+}
+
+// ----- mesa grande: superfície + face frontal (bloco 3D), full-width -----
+.mesa {
+  position: relative;
+  z-index: 0;
+  align-self: stretch;
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-top: clamp(-140px, -12vh, -70px);
+}
+
+// tampo (superfície horizontal recuando para o fundo)
+.mesa-tampo {
+  position: relative;
+  height: clamp(120px, 17vh, 240px);
+  background: linear-gradient(180deg, #5a3820 0%, #6f4629 38%, #85552f 72%, #9a6337 100%);
+}
+
+.mesa-tampo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.045) 0 3px, transparent 3px 34px),
+    radial-gradient(150% 110% at 50% 0%, transparent 62%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+// face frontal (a espessura da mesa — fina, tom mais claro, dá o 3D)
+.mesa-frente {
+  position: relative;
+  height: clamp(40px, 5.5vh, 76px);
+  background: linear-gradient(180deg, #b0743f 0%, #96602f 60%, #7e4c26 100%);
+  box-shadow: 0 16px 26px -10px rgba(0, 0, 0, 0.55);
+}
+
+// aresta frontal do tampo (linha de luz na dobra)
+.mesa-frente::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5px;
+  background: linear-gradient(180deg, #cf9a63, rgba(0, 0, 0, 0.2));
+}
+
+@media (max-width: 700px) {
+  .mesa { margin-top: clamp(-90px, -8vh, -50px); }
+}
+
+// ----- tela cheia: o PC enquadra na tela toda -----
+.crt.tela-cheia {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 8px;
+  border-radius: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transform-origin: 0 0;
+  animation: zoom-in 0.5s cubic-bezier(0.34, 1.3, 0.5, 1) forwards;
+}
+
+// fechar: encolhe de volta exatamente pra caixa do monitor na mesa
+.crt.tela-cheia.fechando {
+  animation: zoom-out 0.38s cubic-bezier(0.5, 0, 0.75, 0.2) forwards;
+}
+
+// FLIP: sai/volta da caixa real do monitor (posição + tamanho) até a tela toda
+@keyframes zoom-in {
+  from { transform: translate(var(--ml, 0), var(--mt, 0)) scale(var(--efx, 0.4), var(--efy, 0.5)); }
+  to   { transform: translate(0, 0) scale(1, 1); }
+}
+
+@keyframes zoom-out {
+  from { transform: translate(0, 0) scale(1, 1); }
+  to   { transform: translate(var(--ml, 0), var(--mt, 0)) scale(var(--efx, 0.4), var(--efy, 0.5)); }
+}
+
+.crt.tela-cheia .crt-screen {
+  aspect-ratio: auto;
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.crt.tela-cheia .crt-bezel {
+  flex: 0 0 auto;
 }
 
 .boot {
@@ -624,4 +720,220 @@ $navy2: #1084d0;
   padding: 3px 9px;
   font-size: 12px;
   box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+
+// barra de status (só no celular)
+.statusbar { display: none; }
+
+// ===== no celular o "PC" vira um celular touchscreen antigo (tela em retrato) =====
+@media (max-width: 600px) {
+  .pc-wrap { padding: 20px 10px 40px; }
+  .pc-heading { margin-bottom: 12px; }
+
+  // some com a mesa e o suporte do monitor
+  .crt-stand,
+  .mesa { display: none !important; }
+
+  // corpo do celular
+  .crt {
+    width: min(330px, 86vw);
+    max-width: none;
+    padding: 44px 12px 58px;
+    border-radius: 38px;
+    background: linear-gradient(158deg, #34343c 0%, #1c1c22 55%, #101015 100%);
+    box-shadow:
+      0 22px 44px -14px rgba(0, 0, 0, 0.75),
+      inset 0 1px 2px rgba(255, 255, 255, 0.16),
+      inset 0 0 0 2px rgba(0, 0, 0, 0.4);
+  }
+
+  // alto-falante em cima
+  .crt::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 6px;
+    border-radius: 3px;
+    background: #050506;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.9);
+  }
+
+  // botão "home" embaixo
+  .crt::after {
+    content: "";
+    position: absolute;
+    bottom: 13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 42% 34%, #47474f, #16161a);
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.09),
+      0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+
+  // a tela vira retrato
+  .crt-screen {
+    aspect-ratio: 10 / 16;
+    border-radius: 5px;
+    box-shadow:
+      inset 0 0 14px rgba(0, 0, 0, 0.5),
+      0 0 0 3px #050506;
+  }
+
+  // esconde a moldura de monitor (marca/CRT/tela cheia)
+  .crt-bezel { display: none; }
+
+  // barra de status do "SO" (relógio + sinal/wifi/bateria)
+  .statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 22px;
+    padding: 0 10px;
+    z-index: 3;
+    color: #eafff0;
+    font: 600 12px 'Tahoma', sans-serif;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .statusbar .sb-icons {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .statusbar .material-icons { font-size: 14px; }
+
+  // ícones como blocos de app (home screen)
+  .icons {
+    inset: 32px 10px 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 4px;
+    align-content: start;
+  }
+
+  .ico { width: auto; }
+
+  .ico .material-icons {
+    font-size: 28px;
+    color: #eafff0;
+    padding: 12px;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #1f6f5c 0%, #0d5a54 55%, #073f42 100%);
+    box-shadow:
+      inset 0 1px 2px rgba(255, 255, 255, 0.25),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.3),
+      0 3px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .ico:active .material-icons { transform: scale(0.94); }
+
+  .ico .lbl {
+    margin-top: 6px;
+    font-size: 10px;
+    background: none;
+  }
+
+  // sem barra "Iniciar" — some com a taskbar e o menu iniciar
+  .taskbar,
+  .startmenu { display: none; }
+
+  // apps abrem em tela cheia (sem espaço da taskbar)
+  .win-max { bottom: 0; }
+
+  // ===== janelas (apps) com cara de app de celular =====
+  .win-max {
+    background: #14120f;
+    box-shadow: none;
+  }
+
+  // cabeçalho escuro estilo app
+  .win-max .tb {
+    height: 44px;
+    padding: 0 8px;
+    cursor: default;
+    background: linear-gradient(180deg, #20242a, #14161a);
+  }
+
+  // esconde o ícone do app e o botão maximizar
+  .win-max .tb .tb-ic,
+  .win-max .tb button:first-of-type { display: none; }
+
+  // o "fechar" vira uma seta de voltar à esquerda
+  .win-max .tb-btn {
+    order: -1;
+    width: 40px;
+    height: 40px;
+    font-size: 0;
+    color: #eafff0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .win-max .tb-btn::before {
+    content: '‹';
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  // título vai pra direita
+  .win-max .tb b {
+    flex: 1;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 15px;
+  }
+
+  // sem a barra cinza de baixo
+  .win-max .stat { display: none; }
+
+  // conteúdo escuro (cara de mobile)
+  .win-max .body,
+  .win-max .note-body,
+  .win-max .about-body {
+    background: #14120f;
+    color: #e6e2da;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  .win-max .body { padding: 2px 0; }
+
+  .win-max .row {
+    padding: 14px 16px;
+    gap: 12px;
+    color: #e6e2da;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .win-max .row .material-icons { font-size: 22px; color: #7CF09A; }
+  .win-max .row span:last-child { font-size: 15px; }
+  .win-max .row:active { background: rgba(255, 255, 255, 0.06); }
+
+  // textos (nota / sobre) legíveis
+  .win-max .note { margin: 0; }
+  .win-max .note-menu { padding: 6px 12px; font-size: 12px; color: #9a948a; }
+
+  .win-max .note-body,
+  .win-max .about-body {
+    max-height: none;
+    font-size: 14px;
+    line-height: 1.65;
+    padding: 14px 16px;
+  }
+
+  .win-max .about { margin: 0; }
+  .win-max .about-sec p { font-size: 14px; line-height: 1.6; color: #cfc9bd; }
+  .win-max .about-sec h4 { font-size: 14px; color: #7CF09A; }
 }

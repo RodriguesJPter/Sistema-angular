@@ -1,5 +1,5 @@
 import {
-  Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone
+  Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -71,12 +71,21 @@ export class GameFps implements AfterViewInit, OnDestroy {
   private onda = 1;
   private abates = 0;
 
-  private wpn = { state: 'idle' as 'idle' | 'shoot' | 'sword', frame: 0, ft: 0, hit: false };
+  private wpn = { state: 'idle' as 'idle' | 'shoot' | 'sword' | 'reload', frame: 0, ft: 0, hit: false };
+  private pente = 5;
+  private readonly penteMax = 5;
   private fbAnim = 0;
   private bob = 0;
 
   iniciado = false;
   doc = false;
+
+  // celular: controles de toque + tela cheia em paisagem
+  toque = false;
+  cheia = false;
+  retrato = false;
+  private tLookId = -1;
+  private tLookX = 0;
 
   debug = false;
   alvo: 'arma' | 'espada' = 'arma';
@@ -97,13 +106,16 @@ export class GameFps implements AfterViewInit, OnDestroy {
   private ready = false;
   private last = 0;
 
-  constructor(private zone: NgZone) {}
+  constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit(): void {
     const c = this.cv.nativeElement;
     c.width = this.W; c.height = this.H;
     this.ctx = c.getContext('2d')!;
     this.ctx.imageSmoothingEnabled = false;
+
+    this.toque = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    this.retrato = window.matchMedia('(orientation: portrait)').matches;
 
     this.spawnOnda();
     this.items.push(this.novoItem('hp'), this.novoItem('ammo'));
@@ -120,6 +132,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
     window.addEventListener('keyup', this.onKey);
     document.addEventListener('mousemove', this.onMouse);
     document.addEventListener('pointerlockchange', this.onPlock);
+    window.addEventListener('resize', this.onResize);
   }
 
   ngOnDestroy(): void {
@@ -128,6 +141,24 @@ export class GameFps implements AfterViewInit, OnDestroy {
     window.removeEventListener('keyup', this.onKey);
     document.removeEventListener('mousemove', this.onMouse);
     document.removeEventListener('pointerlockchange', this.onPlock);
+    window.removeEventListener('resize', this.onResize);
+    document.body.style.overflow = '';
+  }
+
+  private onResize = () => {
+    const p = window.matchMedia('(orientation: portrait)').matches;
+    if (p !== this.retrato) {
+      this.retrato = p;
+      this.atualizarCheia();
+      this.cdr.markForCheck();
+    }
+  };
+
+  // tela cheia (paisagem) só quando estiver de lado; em retrato o aviso fica dentro do telefone
+  private atualizarCheia(): void {
+    const nova = this.iniciado && this.toque && !this.retrato;
+    this.cheia = nova;
+    document.body.style.overflow = nova ? 'hidden' : '';
   }
 
   private async carregar(): Promise<void> {
@@ -145,6 +176,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
     this.img['ps'] = await seq('player', 'shoot', 6);
     this.img['plo'] = await seq('player', 'lower', 9);
     this.img['pbl'] = await seq('player', 'blade', 6);
+    this.img['prl'] = await seq('player', 'reload', 14);
     this.img['fb'] = await seq('fx', 'fireball', 8);
     this.img['heart'] = await seq('items', 'heart', 4);
     this.img['ammo'] = [await load('items/ammo.png')];
@@ -217,11 +249,48 @@ export class GameFps implements AfterViewInit, OnDestroy {
     this.iniciado = true;
     this.debug = false;
     this.doc = false;
-    this.focar();
+    if (this.toque) {
+      this.ativo = true;
+      this.keys = {};
+      this.atualizarCheia();
+    } else {
+      this.focar();
+    }
+  }
+
+  sairJogo(): void {
+    this.cheia = false;
+    this.iniciado = false;
+    this.ativo = false;
+    this.keys = {};
+    document.body.style.overflow = '';
+  }
+
+  mover(dir: string, on: boolean, e?: Event): void {
+    e?.preventDefault();
+    this.keys[dir] = on;
+  }
+
+  btnTiro(e?: Event): void { e?.preventDefault(); this.atirar(); }
+  btnEspada(e?: Event): void { e?.preventDefault(); this.espada(); }
+
+  lookStart(e: PointerEvent): void {
+    if (!this.toque || !this.cheia) return;
+    this.tLookId = e.pointerId;
+    this.tLookX = e.clientX;
+  }
+  lookMove(e: PointerEvent): void {
+    if (this.tLookId !== e.pointerId || this.player.hp <= 0) return;
+    const dx = e.clientX - this.tLookX;
+    this.tLookX = e.clientX;
+    this.player.ang += dx * 0.005;
+  }
+  lookEnd(e: PointerEvent): void {
+    if (this.tLookId === e.pointerId) this.tLookId = -1;
   }
 
   focar(): void {
-    if (!this.iniciado || this.player.hp <= 0 || this.doc) return;
+    if (this.toque || !this.iniciado || this.player.hp <= 0 || this.doc) return;
     this.keys = {};
     this.ativo = true;
     this.cv.nativeElement.focus();
@@ -231,6 +300,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
     } catch {  }
   }
   desfocar(): void {
+    if (this.toque) return;
     if (document.pointerLockElement !== this.cv.nativeElement) this.ativo = false;
   }
 
@@ -255,10 +325,14 @@ export class GameFps implements AfterViewInit, OnDestroy {
   }
 
   private atirar(): void {
-    if (this.wpn.state !== 'idle' || this.player.ammo <= 0 || this.player.hp <= 0) return;
-    this.player.ammo--;
+    if (this.wpn.state !== 'idle' || this.pente <= 0 || this.player.hp <= 0) return;
+    this.pente--;
     this.wpn.state = 'shoot'; this.wpn.frame = 0; this.wpn.ft = 0; this.wpn.hit = false;
     this.acertarInimigo(6, 25);
+  }
+
+  private recarregar(): void {
+    this.wpn.state = 'reload'; this.wpn.frame = 0; this.wpn.ft = 0;
   }
   private espada(): void {
     if (this.wpn.state !== 'idle' || this.player.hp <= 0) return;
@@ -327,7 +401,23 @@ export class GameFps implements AfterViewInit, OnDestroy {
 
     if (this.wpn.state === 'shoot') {
       this.wpn.ft += dt;
-      if (this.wpn.ft > 0.05) { this.wpn.ft = 0; this.wpn.frame++; if (this.wpn.frame >= 6) this.wpn.state = 'idle'; }
+      if (this.wpn.ft > 0.05) {
+        this.wpn.ft = 0; this.wpn.frame++;
+        if (this.wpn.frame >= 6) {
+          if (this.pente <= 0 && this.player.ammo > 0) this.recarregar();
+          else this.wpn.state = 'idle';
+        }
+      }
+    } else if (this.wpn.state === 'reload') {
+      this.wpn.ft += dt;
+      if (this.wpn.ft > 0.055) {
+        this.wpn.ft = 0; this.wpn.frame++;
+        if (this.wpn.frame >= 14) {
+          const take = Math.min(this.penteMax - this.pente, this.player.ammo);
+          this.pente += take; this.player.ammo -= take;
+          this.wpn.state = 'idle';
+        }
+      }
     } else if (this.wpn.state === 'sword') {
 
       this.wpn.ft += dt;
@@ -416,6 +506,7 @@ export class GameFps implements AfterViewInit, OnDestroy {
   }
   wpnImg(): HTMLImageElement | null {
     if (this.wpn.state === 'shoot') return this.img['ps'][Math.min(this.wpn.frame, 5)];
+    if (this.wpn.state === 'reload') return this.img['prl'][Math.min(this.wpn.frame, 13)];
     if (this.wpn.state === 'sword') {
       const f = this.wpn.frame;
       if (f < 6) return this.img['plo'][f];
@@ -522,8 +613,8 @@ export class GameFps implements AfterViewInit, OnDestroy {
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, H - 16, W, 16);
     ctx.fillStyle = '#7CF09A'; ctx.font = '9px monospace';
     ctx.fillText('HP ' + p.hp, 6, H - 5);
-    ctx.fillText('AMMO ' + p.ammo, 60, H - 5);
-    ctx.fillText('ONDA ' + this.onda, 138, H - 5);
+    ctx.fillText('AMMO ' + this.pente + '/' + p.ammo, 56, H - 5);
+    ctx.fillText('ONDA ' + this.onda, 150, H - 5);
     ctx.fillText('ABATES ' + this.abates, 194, H - 5);
 
     if (p.hp <= 0) {
@@ -546,7 +637,11 @@ export class GameFps implements AfterViewInit, OnDestroy {
     this.items = [this.novoItem('hp'), this.novoItem('ammo')];
     this.respawn = [];
     this.fireballs = [];
+    this.pente = this.penteMax;
     this.wpn = { state: 'idle', frame: 0, ft: 0, hit: false };
-    if (this.iniciado) this.focar();
+    if (this.iniciado) {
+      if (this.toque) { this.ativo = true; this.keys = {}; }
+      else this.focar();
+    }
   }
 }
