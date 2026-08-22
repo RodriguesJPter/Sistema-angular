@@ -14,10 +14,8 @@ $primary-light: #ACC8A2;
 }
 
 .pagina-vazia {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: $primary-light;
+  display: block;
+  background-color: $primary-dark;
 }
 
 .pagina-pc {

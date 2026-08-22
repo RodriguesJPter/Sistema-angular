@@ -160,7 +160,7 @@ export class SkillsPc implements AfterViewInit, OnDestroy {
       h: 'O jogo no celular',
       p: 'O game (um raycaster estilo Doom feito à mão em canvas) ganha controles de toque: um ' +
          'direcional para andar, botões de tiro e espada, e arrastar o dedo para virar a câmera. ' +
-         'Ele exige o modo paisagem — em pé, aparece um aviso "gire o celular" dentro da própria ' +
+         'Ele exige o modo paisagem, em pé, aparece um aviso "gire o celular" dentro da própria ' +
          'tela do telefone; deitado, o jogo ocupa a tela inteira com os controles.'
     },
     {

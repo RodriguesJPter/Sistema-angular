@@ -2,6 +2,7 @@ import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SkillsPc } from '../../components/skills-pc/skills-pc';
 import { Intro } from '../../components/intro/intro';
+import { Apresentacao } from '../../components/apresentacao/apresentacao';
 
 @Component({
   selector: 'app-home-tela',
@@ -9,7 +10,8 @@ import { Intro } from '../../components/intro/intro';
   imports: [
     CommonModule,
     SkillsPc,
-    Intro
+    Intro,
+    Apresentacao
   ],
   templateUrl: './homeTela.html',
   styleUrls: ['./homeTela.scss']
@@ -18,6 +20,7 @@ export class HomeTela implements AfterViewInit, OnDestroy {
 
   private secoes: HTMLElement[] = [];
   private travado = false;
+  private soltaId = -1;
   private tY = 0;
 
   ngAfterViewInit(): void {
@@ -74,19 +77,41 @@ export class HomeTela implements AfterViewInit, OnDestroy {
     return melhor;
   }
 
-  avancarPara(i: number): void {
+  // mantém o scroll bloqueado e reprograma a liberação (mata a inércia do trackpad)
+  private segurarNav(ms: number): void {
+    this.travado = true;
+    clearTimeout(this.soltaId);
+    this.soltaId = window.setTimeout(() => { this.travado = false; }, ms);
+  }
+
+  avancarPara(i: number, forcar = false): void {
     if (!this.secoes.length) this.pegarSecoes();
     i = Math.max(0, Math.min(this.secoes.length - 1, i));
-    this.travado = true;
+    const atual = this.atual();
+    // só sai da apresentação (seção 1) para o PC concluindo ou segurando o SKIP
+    if (!forcar && atual === 1 && i > 1) return;
+    this.segurarNav(700);
     this.secoes[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => { this.travado = false; }, 850);
+  }
+
+  // cursor dentro do monitor (o PC é dono do scroll ali)
+  private dentroPc(t: EventTarget | null): boolean {
+    return !!(t && (t as HTMLElement).closest && (t as HTMLElement).closest('.crt'));
   }
 
   private onWheel = (e: WheelEvent): void => {
+    if (document.body.style.position === 'fixed') return; // tela cheia: PC controla
     const dir = e.deltaY > 0 ? 1 : -1;
-    if (!this.podeNavegar(e, dir)) return;
+    if (this.dentroPc(e.target)) {
+      // sobre o monitor: rola a janela sob o cursor se der; senão trava (não navega)
+      if (!this.temRolagem(e.target as HTMLElement, dir)) e.preventDefault();
+      return;
+    }
+    // fora do monitor: controla a landing page
     e.preventDefault();
-    if (this.travado || Math.abs(e.deltaY) < 6) return;
+    if (Math.abs(e.deltaY) < 4) return;
+    // enquanto chega inércia do trackpad, mantém bloqueado (sem pular de novo)
+    if (this.travado) { this.segurarNav(300); return; }
     this.avancarPara(this.atual() + dir);
   };
 

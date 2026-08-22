@@ -1,5 +1,14 @@
 @use '@angular/material' as mat;
 
+@font-face {
+  font-family: 'Sangar';
+  src: url('/assets/fonts/SANGAR-Regular.woff2') format('woff2'),
+       url('/assets/fonts/SANGAR-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 html {
   @include mat.theme((
     color: (

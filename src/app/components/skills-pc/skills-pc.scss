@@ -12,14 +12,21 @@ $navy2: #1084d0;
 }
 
 .pc-wrap {
+  position: relative;
   background: $dark;
-  padding: 50px 16px 80px;
+  height: 100vh;
+  overflow: hidden;
+  padding: 0;
+  // empilha de baixo pra cima: mesa (fundo) < base < monitor
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
 }
 
+// título/subtítulo removidos da tela do PC
 .pc-heading {
+  display: none;
   text-align: center;
   margin-bottom: 26px;
   font-family: 'Krona One', sans-serif;
@@ -50,35 +57,88 @@ $navy2: #1084d0;
   }
 }
 
+// ===== monitor CRT (gabinete parrudo, bege amarelado, com volume) =====
 .crt {
   position: relative;
   z-index: 2;
-  width: min(680px, 90vw, 76vh);
-  background: linear-gradient(160deg, #d7d0bd, #b8b09a 60%, #9c957f);
-  border-radius: 22px;
-  padding: 26px 26px 12px;
+  width: min(1180px, 96vw, 92vh);
+  flex: 0 0 auto;
+  // bege amarelado iluminado por cima + parafusos nos 4 cantos
+  background:
+    radial-gradient(circle at 17px 17px, #8f886f 0 1.5px, rgba(0, 0, 0, 0.45) 1.5px 3px, transparent 3.4px),
+    radial-gradient(circle at calc(100% - 17px) 17px, #8f886f 0 1.5px, rgba(0, 0, 0, 0.45) 1.5px 3px, transparent 3.4px),
+    radial-gradient(circle at 17px calc(100% - 17px), #8f886f 0 1.5px, rgba(0, 0, 0, 0.45) 1.5px 3px, transparent 3.4px),
+    radial-gradient(circle at calc(100% - 17px) calc(100% - 17px), #8f886f 0 1.5px, rgba(0, 0, 0, 0.45) 1.5px 3px, transparent 3.4px),
+    linear-gradient(172deg, #e6dfcd 0%, #d5ccb6 42%, #bfb69c 74%, #a69c82 100%);
+  border-radius: 34px 34px 30px 30px / 30px 30px 26px 26px;
+  padding: 26px 30px 18px;
   box-shadow:
-    0 30px 60px -20px rgba(0, 0, 0, 0.7),
-    inset 0 2px 3px rgba(255, 255, 255, 0.6),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.25);
+    0 34px 60px -22px rgba(0, 0, 0, 0.75),
+    inset 0 3px 3px rgba(255, 255, 255, 0.5),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.3),
+    inset 7px 0 13px rgba(255, 255, 255, 0.14),
+    inset -9px 0 15px rgba(0, 0, 0, 0.22);
+}
+
+// grão sutil sobre o gabinete (tira o aspecto "liso demais")
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+// moldura interna: a tela afunda num rebaixo biselado
+.crt-face {
+  position: relative;
+  padding: 20px 22px 24px;
+  border-radius: 26px;
+  background: linear-gradient(168deg, #cbc3ad 0%, #b6ad95 58%, #9f9679 100%);
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, 0.4),
+    inset -4px -5px 9px rgba(255, 255, 255, 0.45);
 }
 
 .crt-screen {
   position: relative;
   isolation: isolate;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1.28;
   width: 100%;
-  border-radius: 14px;
+  // tela levemente abaulada (cantos do tubo)
+  border-radius: 26px / 20px;
   overflow: hidden;
-  background: radial-gradient(120% 120% at 50% 40%, $teal 0%, $teal2 80%, #05494e 100%);
+  background:
+    radial-gradient(140% 120% at 50% 42%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #128d8d 0%, #0d7c7f 58%, #0a686c 100%);
+  // aro preto do tubo + reflexo do aro + vinheta interna
   box-shadow:
-    inset 0 0 22px rgba(0, 0, 0, 0.55),
-    inset 0 0 3px rgba(0, 0, 0, 0.9),
-    0 0 0 3px #1a1a1a;
+    0 0 0 5px #0c0c0a,
+    0 0 0 7px rgba(255, 255, 255, 0.16),
+    0 0 0 8px rgba(0, 0, 0, 0.5),
+    inset 0 0 34px rgba(0, 0, 0, 0.55),
+    inset 0 0 4px rgba(0, 0, 0, 0.9);
   font-family: Tahoma, "MS Sans Serif", Geneva, sans-serif;
   font-size: 12px;
   color: #000;
   user-select: none;
+}
+
+// reflexo de vidro curvo (mancha de luz no canto superior esquerdo)
+.crt-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2900;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(78% 58% at 24% 12%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.06) 34%, transparent 60%),
+    linear-gradient(124deg, rgba(255, 255, 255, 0.10) 0%, transparent 32%);
 }
 
 .scanlines {
@@ -86,36 +146,40 @@ $navy2: #1084d0;
   inset: 0;
   pointer-events: none;
   z-index: 3000;
+  border-radius: inherit;
   background:
     repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 3px),
-    radial-gradient(130% 130% at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.35) 100%);
+    radial-gradient(125% 125% at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.5) 100%);
 }
 
+// ===== queixo inferior do monitor (marca + controles físicos) =====
 .crt-bezel {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px 2px;
+  padding: 14px 20px 2px;
+  min-height: 30px;
 }
 
 .crt-bezel .brand {
   font-family: 'Krona One', sans-serif;
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(58, 50, 32, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .crt-bezel .led {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #9dff9d, #2ca02c);
-  box-shadow: 0 0 6px #38d038;
+  background: radial-gradient(circle at 35% 30%, #b6ffb6, #2ca02c 70%, #157a15);
+  box-shadow: 0 0 7px #38d038, inset 0 0 2px rgba(255, 255, 255, 0.8);
 }
 
 .crt-bezel .led.led-off {
   background: radial-gradient(circle at 35% 35%, #7a7a7a, #333);
-  box-shadow: none;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 .bezel-ctrl {
@@ -124,50 +188,102 @@ $navy2: #1084d0;
   gap: 10px;
 }
 
+// controles decorativos (brilho/contraste)
+.crt-nubs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 2px;
+}
+
+.crt-nubs i {
+  width: 15px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ddd6c2, #98906f);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.6), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
 .crt-btn {
   font-family: 'Krona One', sans-serif;
   font-size: 9px;
   letter-spacing: 1px;
   color: #4d4636;
-  background: #cfc9b7;
+  background: linear-gradient(180deg, #e0d9c5, #c2ba9f);
   border: none;
-  border-radius: 3px;
-  padding: 4px 8px;
+  border-radius: 4px;
+  padding: 5px 8px;
   cursor: pointer;
-  box-shadow: inset -1px -1px rgba(0, 0, 0, 0.35), inset 1px 1px #fff;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.crt-btn:active {
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4);
 }
 
 .crt-btn.off {
   color: #8a8470;
-  box-shadow: inset 1px 1px rgba(0, 0, 0, 0.35), inset -1px -1px #fff;
+  background: linear-gradient(180deg, #c2ba9f, #d3ccb6);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
 }
 
+// ===== pescoço + base do monitor (suporte parrudo) =====
 .crt-stand {
   position: relative;
   z-index: 1;
-  width: 170px;
-  height: 46px;
-  margin-top: -24px;
-  background: linear-gradient(180deg, #a49d88, #837c68);
-  clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 18px 24px -12px rgba(0, 0, 0, 0.65);
+  flex: 0 0 auto;
+  width: 600px;
+  max-width: 58%;
+  height: 60px;
+  margin-top: -6px;
+  // pescoço GROSSO (conector) no topo, abrindo pra um pé largo embaixo
+  background: linear-gradient(180deg, #dcd4be 0%, #c6bda2 42%, #ada584 66%, #938a6b 86%, #6f6650 100%);
+  clip-path: polygon(36% 0, 64% 0, 64% 54%, 100% 76%, 100% 100%, 0 100%, 0 76%, 36% 54%);
+  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.45);
 }
 
-// ----- mesa grande: superfície + face frontal (bloco 3D), full-width -----
+// sombreado lateral do pescoço (dá volume de coluna)
+.crt-stand::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 36%;
+  width: 28%;
+  height: 54%;
+  background: linear-gradient(90deg,
+    rgba(0, 0, 0, 0.16) 0%,
+    rgba(255, 255, 255, 0.42) 34%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(0, 0, 0, 0.22) 100%);
+}
+
+// aresta de luz no topo do pé largo
+.crt-stand::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+// ----- mesa grande: superfície + face frontal (bloco 3D), no fundo -----
 .mesa {
   position: relative;
   z-index: 0;
+  flex: 0 0 auto;
   align-self: stretch;
-  margin-left: -16px;
-  margin-right: -16px;
-  margin-top: clamp(-140px, -12vh, -70px);
+  margin-top: -8px;
 }
 
 // tampo (superfície horizontal recuando para o fundo)
 .mesa-tampo {
   position: relative;
-  height: clamp(120px, 17vh, 240px);
+  height: 5vh;
   background: linear-gradient(180deg, #5a3820 0%, #6f4629 38%, #85552f 72%, #9a6337 100%);
 }
 
@@ -182,10 +298,10 @@ $navy2: #1084d0;
     radial-gradient(150% 110% at 50% 0%, transparent 62%, rgba(0, 0, 0, 0.3) 100%);
 }
 
-// face frontal (a espessura da mesa — fina, tom mais claro, dá o 3D)
+// face frontal (a espessura da mesa, fina, tom mais claro, dá o 3D)
 .mesa-frente {
   position: relative;
-  height: clamp(40px, 5.5vh, 76px);
+  height: 2vh;
   background: linear-gradient(180deg, #b0743f 0%, #96602f 60%, #7e4c26 100%);
   box-shadow: 0 16px 26px -10px rgba(0, 0, 0, 0.55);
 }
@@ -199,10 +315,6 @@ $navy2: #1084d0;
   top: 0;
   height: 5px;
   background: linear-gradient(180deg, #cf9a63, rgba(0, 0, 0, 0.2));
-}
-
-@media (max-width: 700px) {
-  .mesa { margin-top: clamp(-90px, -8vh, -50px); }
 }
 
 // ----- tela cheia: o PC enquadra na tela toda -----
@@ -238,12 +350,25 @@ $navy2: #1084d0;
   to   { transform: translate(var(--ml, 0), var(--mt, 0)) scale(var(--efx, 0.4), var(--efy, 0.5)); }
 }
 
+// em tela cheia a moldura interna vira só um respiro fino e estica
+.crt.tela-cheia .crt-face {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  padding: 6px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
 .crt.tela-cheia .crt-screen {
   aspect-ratio: auto;
   flex: 1 1 auto;
   width: 100%;
   height: auto;
   min-height: 0;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px #0c0c0a, inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .crt.tela-cheia .crt-bezel {
@@ -689,17 +814,6 @@ $navy2: #1084d0;
 .task .t-lbl { overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 700px) {
-  .pc-wrap { padding: 34px 16px 56px; }
-
-  .pc-heading { margin-bottom: 16px; }
-  .pc-heading p { font-size: 12px; }
-
-  .crt {
-    width: 90vw;
-    padding: 14px 14px 8px;
-    border-radius: 16px;
-  }
-
   .icons {
     top: 10px;
     left: 6px;
@@ -727,12 +841,25 @@ $navy2: #1084d0;
 
 // ===== no celular o "PC" vira um celular touchscreen antigo (tela em retrato) =====
 @media (max-width: 600px) {
-  .pc-wrap { padding: 20px 10px 40px; }
-  .pc-heading { margin-bottom: 12px; }
+  // sem título/subtítulo no celular; centraliza o telefone verticalmente
+  .pc-heading { display: none; }
+  .pc-wrap {
+    min-height: 100vh;
+    justify-content: center;
+    padding: 12px 10px;
+  }
 
   // some com a mesa e o suporte do monitor
   .crt-stand,
   .mesa { display: none !important; }
+
+  // no celular a moldura interna não existe (a tela ocupa o corpo)
+  .crt-face {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: inherit;
+  }
 
   // corpo do celular
   .crt {
@@ -839,13 +966,24 @@ $navy2: #1084d0;
 
   .ico:active .material-icons { transform: scale(0.94); }
 
+  // cores variadas por app (home screen de verdade, não tudo igual)
+  .icons .ico:nth-child(1) .material-icons { background: linear-gradient(160deg, #2f80c0, #16548c); }
+  .icons .ico:nth-child(2) .material-icons { background: linear-gradient(160deg, #7b5cd6, #4a2ea6); }
+  .icons .ico:nth-child(3) .material-icons { background: linear-gradient(160deg, #d98b2b, #a65c17); }
+  .icons .ico:nth-child(4) .material-icons { background: linear-gradient(160deg, #d65076, #9c2f52); }
+  .icons .ico:nth-child(5) .material-icons { background: linear-gradient(160deg, #2fa36b, #157048); }
+  .icons .ico:nth-child(6) .material-icons { background: linear-gradient(160deg, #4a8fd6, #2a5ba6); }
+  .icons .ico:nth-child(7) .material-icons { background: linear-gradient(160deg, #c94f4f, #8f2c2c); }
+  .icons .ico:nth-child(8) .material-icons { background: linear-gradient(160deg, #1f8f8a, #0c605c); }
+  .icons .ico:nth-child(9) .material-icons { background: linear-gradient(160deg, #b0913a, #7d631f); }
+
   .ico .lbl {
     margin-top: 6px;
     font-size: 10px;
     background: none;
   }
 
-  // sem barra "Iniciar" — some com a taskbar e o menu iniciar
+  // sem barra "Iniciar", some com a taskbar e o menu iniciar
   .taskbar,
   .startmenu { display: none; }
 

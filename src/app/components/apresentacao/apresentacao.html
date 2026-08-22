@@ -1,0 +1,35 @@
+<section class="apr" [class.chorando]="segurando" [class.dentro]="dentro" (click)="avancar()">
+
+  <!-- fundo estilo Persona -->
+  <div class="apr-bg" aria-hidden="true"></div>
+
+  <!-- botão SKIP: o próprio botão enche (segure com o mouse ou a barra de espaço) -->
+  <div class="pular" [class.ativo]="segurando" [class.quase]="progPular >= 65"
+       (pointerdown)="pularInicio($event)"
+       (pointerup)="pularFim()"
+       (pointerleave)="pularFim()"
+       (pointercancel)="pularFim()"
+       (click)="$event.stopPropagation()">
+    <span class="pular-fill" [style.height.%]="progPular"></span>
+    <span class="pular-txt">SKIP</span>
+  </div>
+
+  <!-- personagem -->
+  <img class="apr-char" [src]="'assets/imagens/mascote/' + fala.img + '.png'" alt="" />
+
+  <!-- caixa de fala -->
+  <div class="balao">
+    <div class="balao-nome">{{ fala.nome || 'John' }}</div>
+    <p class="balao-txt">{{ texto }}</p>
+
+    <span class="balao-mais" *ngIf="!digitando && !mostrarOpts">▼</span>
+  </div>
+
+  <!-- opções -->
+  <div class="opcoes" *ngIf="mostrarOpts && !digitando && !segurando" (click)="$event.stopPropagation()">
+    <button class="opcao" *ngFor="let o of falas[idx].opts" (click)="escolher(o)">
+      {{ o.txt }}
+    </button>
+  </div>
+
+</section>

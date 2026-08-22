@@ -603,8 +603,11 @@ export class GameFps implements AfterViewInit, OnDestroy {
       const sxx = esp ? this.swScaleX : this.wpnScaleX;
       const syy = esp ? this.swScaleY : this.wpnScaleY;
       const baseW = W * (esp ? 1 : this.wpnBase);
-      const dw = baseW * sxx;
-      const dh = baseW * (wi.height / wi.width) * syy;
+      // o reload usa uma tela maior (pra caber as asas); normaliza pela largura
+      // de referência (594) pra manter a arma do mesmo tamanho dos outros quadros
+      const norm = wi.width / 594;
+      const dw = baseW * sxx * norm;
+      const dh = baseW * (wi.height / wi.width) * syy * norm;
       const dx = (W - dw) / 2 + ox + bx;
       const dy = H - dh + oy + by;
       ctx.drawImage(wi, dx, dy, dw, dh);

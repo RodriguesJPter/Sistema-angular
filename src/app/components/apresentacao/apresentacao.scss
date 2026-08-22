@@ -1,0 +1,272 @@
+$verde: #6FA85C;
+$verde2: #4d7f3d;
+$claro: #ACC8A2;
+$escuro: #1A2517;
+$creme: #EAF1E4;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.apr {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: $escuro;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Krona One', sans-serif;
+}
+
+// fundo: vinheta (com leve respiro) + listras diagonais que deslizam devagar
+.apr-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(130% 130% at 70% 40%, #22331d 0%, #1a2517 60%, #0f160c 100%);
+  background-size: 122% 122%;
+  animation: bg-respiro 22s ease-in-out infinite alternate;
+}
+
+// listras animadas (deslizam exatamente 1 período pra loop sem emenda)
+.apr-bg::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  background: repeating-linear-gradient(122deg,
+    rgba(111, 168, 92, 0.10) 0 34px,
+    rgba(0, 0, 0, 0) 34px 78px);
+  animation: bg-listras 20s linear infinite;
+}
+
+.apr.chorando .apr-bg {
+  background: radial-gradient(130% 130% at 60% 40%, #2c451f 0%, #1a2517 60%, #0f160c 100%);
+}
+
+.apr.chorando .apr-bg::before {
+  background: repeating-linear-gradient(122deg,
+    rgba(111, 168, 92, 0.2) 0 34px,
+    rgba(0, 0, 0, 0) 34px 78px);
+  animation-duration: 9s;
+}
+
+@keyframes bg-listras {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(66px, 41px); }
+}
+
+@keyframes bg-respiro {
+  from { background-position: 46% 38%; }
+  to   { background-position: 54% 44%; }
+}
+
+// personagem (à direita) - todos os sprites têm a mesma tela e âncora (rosto),
+// então trocar de pose não move o corpo, só os braços/expressão
+// entra deslizando da direita quando a seção aparece (.dentro)
+.apr-char {
+  position: absolute;
+  right: 1%;
+  left: auto;
+  bottom: 0;
+  width: clamp(380px, 48vw, 780px);
+  height: auto;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55));
+  z-index: 2;
+  transform: translateX(118%);
+  transition: transform 0.55s cubic-bezier(0.2, 0.85, 0.3, 1);
+}
+
+.apr.dentro .apr-char { transform: translateX(0); }
+
+.apr.chorando .apr-char {
+  animation: tremer 0.28s linear infinite;
+}
+
+@keyframes tremer {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px) rotate(-0.4deg); }
+  75% { transform: translateX(4px) rotate(0.4deg); }
+}
+
+// ===== balão de fala (à esquerda) =====
+.balao {
+  position: absolute;
+  left: 5%;
+  right: 42%;
+  bottom: 8%;
+  z-index: 3;
+  background: $creme;
+  color: $escuro;
+  padding: 26px 30px 30px;
+  transform: translateX(-165%) skewX(-4deg);
+  transition: transform 0.55s cubic-bezier(0.2, 0.85, 0.3, 1) 0.12s;
+  box-shadow:
+    0 0 0 4px $escuro,                 // contorno preto
+    -8px 10px 0 rgba(111, 168, 92, 0.85), // acento verde deslocado
+    20px 26px 40px rgba(0, 0, 0, 0.6),    // sombra preta suave (Persona)
+    10px 14px 0 rgba(0, 0, 0, 0.35);      // sombra preta dura
+}
+
+.apr.dentro .balao { transform: translateX(0) skewX(-4deg); }
+
+.balao-nome {
+  position: absolute;
+  top: -20px;
+  left: 10px;
+  background: $verde;
+  color: $escuro;
+  font-size: 15px;
+  letter-spacing: 2px;
+  padding: 6px 20px 6px 14px;
+  transform: skewX(-10deg);
+  box-shadow: 0 0 0 3px $escuro;
+}
+
+.balao-txt {
+  margin: 6px 0 0;
+  transform: skewX(4deg);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: clamp(15px, 1.5vw, 20px);
+  line-height: 1.55;
+  min-height: 3em;
+}
+
+.balao-mais {
+  position: absolute;
+  right: 26px;
+  bottom: 10px;
+  color: $verde2;
+  font-size: 16px;
+  animation: pisca 0.9s steps(2) infinite;
+}
+
+@keyframes pisca {
+  50% { opacity: 0; }
+}
+
+// ===== opções (à esquerda) =====
+.opcoes {
+  position: absolute;
+  left: 6%;
+  bottom: calc(8% + 190px);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: default;
+  animation: opts-in 0.32s ease both;
+}
+
+@keyframes opts-in {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.opcao {
+  background: $escuro;
+  color: $creme;
+  border: none;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: clamp(13px, 1.3vw, 17px);
+  padding: 14px 26px;
+  transform: skewX(-10deg);
+  box-shadow: inset 5px 0 0 $verde, 6px 6px 0 rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.opcao > * { display: inline-block; transform: skewX(10deg); }
+
+.opcao:hover {
+  background: $verde;
+  color: $escuro;
+  transform: skewX(-10deg) translateX(8px);
+}
+
+// ===== botão SKIP (o próprio botão é a barra: enche de baixo pra cima) =====
+.pular {
+  position: absolute;
+  right: 26px;
+  bottom: 26px;
+  z-index: 7;
+  width: 150px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(26, 37, 23, 0.85);
+  border: 2px solid $verde;
+  font-family: 'Krona One', sans-serif;
+  transform: translateX(220%) skewX(-8deg);
+  transition: transform 0.5s cubic-bezier(0.2, 0.85, 0.3, 1) 0.06s;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.apr.dentro .pular { transform: translateX(0) skewX(-8deg); }
+
+.pular.ativo { border-color: $claro; }
+
+.pular.quase {
+  animation: skip-treme 0.09s linear infinite;
+}
+
+@keyframes skip-treme {
+  0%, 100% { transform: skewX(-8deg) translate(0, 0); }
+  25% { transform: skewX(-8deg) translate(-2px, 1px); }
+  50% { transform: skewX(-8deg) translate(2px, -1px); }
+  75% { transform: skewX(-8deg) translate(-1px, -1px); }
+}
+
+// preenchimento de baixo pra cima
+.pular-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  background: linear-gradient(0deg, $verde, $claro);
+  z-index: 1;
+}
+
+.pular-txt {
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: $creme;
+  transform: skewX(8deg);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+// ===== mobile =====
+@media (max-width: 760px) {
+  .apr-char {
+    width: clamp(280px, 88vw, 520px);
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    opacity: 0.92;
+  }
+  .balao {
+    left: 4%;
+    right: 4%;
+    bottom: 4%;
+  }
+  .opcoes {
+    left: 4%;
+    right: 4%;
+    bottom: calc(4% + 210px);
+    align-items: stretch;
+  }
+  .opcao { text-align: center; }
+  .pular { width: 116px; height: 52px; right: 14px; bottom: 14px; }
+  .pular-txt { font-size: 18px; }
+}

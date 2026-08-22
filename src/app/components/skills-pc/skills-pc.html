@@ -7,6 +7,7 @@
 
   <div class="crt" [class.tela-cheia]="telaCheia" [class.fechando]="fechando"
        [style.--ml]="ml + 'px'" [style.--mt]="mt + 'px'" [style.--efx]="efx" [style.--efy]="efy">
+    <div class="crt-face">
     <div class="crt-screen" #screen>
 
       <div class="boot" *ngIf="booting">
@@ -153,10 +154,12 @@
 
       <div class="scanlines" *ngIf="crtLigado"></div>
     </div>
+    </div>
 
     <div class="crt-bezel">
       <span class="brand">JohnDows 2000</span>
       <div class="bezel-ctrl">
+        <span class="crt-nubs" aria-hidden="true"><i></i><i></i><i></i></span>
         <button class="crt-btn" (click)="toggleTelaCheia($event)"
                 [title]="telaCheia ? 'Sair da tela cheia' : 'Enquadrar na tela toda'">{{ telaCheia ? '✕' : '⛶' }}</button>
         <button class="crt-btn" [class.off]="!crtLigado" (click)="toggleCrt($event)"
